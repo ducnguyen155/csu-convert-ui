@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Input Transfer</title>
+  <script src="https://cdn.jsdelivr.net/npm/umbrellajs"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify-html.min.js"></script>
+  <script src="ConvertFuncMain.js"></script>
+  <script src="ConvertFuncHeader.js"></script>
+  <script src="Common.js"></script>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .input-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    textarea {
+      width: 1200px;
+      height: 460px; /* Adjust the height as needed */
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      resize: vertical; /* Allow vertical resizing */
+    }
+
+    textarea[readonly] {
+      width: 1200px;
+      height: 460px; /* Adjust the height as needed */
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      resize: vertical; /* Allow vertical resizing */
+      background-color: #f0f0f0;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div class="input-container">
+  <label for="input1">Input 1:</label>
+  <textarea id="input1" >
+<!--<body>-->
+<!--        <div id="wrap">-->
+            <header>
+                <div class="title">
+                    <h1></h1>
+                </div>
+                <div class="screen-title">
+                    <h3 class="fl"></h3>
+                </div>
+                <!-- /title -->
+                <div class="search-pnl">
+                    <div class="search">
+                        <table border="0">
+                            <colgroup>
+                                <col width="120px">
+                                <col width="80px">
+                                <col width="60px">
+                                <col width="90px">
+                                <col width="60px">
+                                <col width="100px">
+                                <col width="80px">
+                                <col width="70px">
+                                <col width="80px">
+                                <col width="70px">
+                                <col width="85px">
+                                <col width="100px">
+                                <col width="">
+                            </colgroup>
+                            <tbody>
+                            	<tr>
+                                    <th>%$Program No.:Program No.$%</th>
+                                    <td colspan="3"><input type="text" size="32" id="pgmNo" data-nx="{ref:{req:'ProgramCondDto@pgmNr'}}"></td>
+                                    <th>%$Name:Name$%</th>
+                                    <td colspan="7"><input type="text" size="65" id="pgnNm" data-nx="{ref:{req:'ProgramCondDto@pgmNm'}}"></td>
+                                    <td></td>
+                                </tr>
+                                	<tr>
+                                    <th>%$Module:Module$%</th>
+                                    <td id="pgmSubSys"><select id="module" data-nx="{ref:{req:'ProgramCondDto@pgmSubSysCd'}}"></select></td>
+                                    <th>%$Type:Type$%</th>
+                                    <td><select id="pgmTp" data-nx="{ref:{req:'ProgramCondDto@pgmTpCd'}}" biztype="fileKeyCombo" udcopt03="ALL" bizkey="pgmTpCd"></select></td>
+                                    <th>%$Div.:Div.$%</th>
+                                    <td><select id="pgmMenuDivCd" data-nx="{ref:{req:'ProgramCondDto@pgmMenuDivCd'}}" biztype="fileKeyCombo" bizkey="pgmMenuDivCd" udcopt03="ALL"></select></td>
+                                    <th>%$Use (Y/N):Use (Y/N)$%</th>
+                                    <td><select id="useYn" bizkey="codeYESNO" udcopt03="ALL" biztype="fileKeyCombo" data-nx="{ref:{req:'ProgramCondDto@useYn'}}"></select></td>
+                                    <th>%$Standard:Standard$%</th>
+                                    <td><select id="standardYn" bizkey="codeYESNO" udcopt03="ALL" biztype="fileKeyCombo" data-nx="{ref:{req:'ProgramCondDto@stdPgmYn'}}"></select></td>
+                                	<th id="delpNmTh">Developer</th>
+                                	<td id="delpNmTd"><input type="text" size="20" id="dvlpNm" data-nx="{ref:{req:'ProgramCondDto@dvlpNm'}}"></td>
+                                	<td></td>
+                                	</tr>
+                            </tbody>
+                        </table>
+                        <span class="buttonset fr"><button type="button" class="dosearch" id="btnR">%$Search:Search$%</button></span>
+                    </div>
+                </div>
+            </header>
+            <main>
+                <section>
+                    <div class="colgroup-1-1">
+                        <div class="caption-pnl">
+                            <h2><span class="x-icon"></span><span class="x-label">%$Result:Result$%</span></h2>
+                            <span class="buttonset fr"><button type="button" class="doaction" id="logAddRow">%$Add Row:Add Row$%</button><button type="button" class="doaction" id="logDeleteRow">%$Delete Row:Delete Row$%</button><button type="button" class="doaction-point" id="btnP" auth="S">%$Save:Save$%</button></span>
+                        </div>
+                        <div class="grid-pnl" id="grid200"></div>
+                    </div>
+                </section>
+            </main>
+<!--        </div>-->
+<!--    </body>-->
+  </textarea>
+</div>
+<div><button id="copyButton">Copy</button></div>
+<div class="input-container">
+  <label for="input2">Input 2:</label>
+  <textarea type="text" id="input2" readonly></textarea>
+</div>
+<div id="tempArea">
+
+</div>
+<script>
+  const input1 = document.getElementById('input1');
+  const input2 = document.getElementById('input2');
+  const copyButton = document.getElementById('copyButton');
+
+  copyButton.addEventListener('click', () => {
+    // Get the value from Input 1
+    const value1 = input1.value;
+    u('#tempArea').append(value1);
+
+    /*---------- start add convert function --- */
+      wrapBody();
+      //convertSearchArea();
+      convertTableArea();
+      formatHTML();
+    //---------- end add convert function ---
+
+    input2.value =  u('#tempArea').html();
+    u('#tempArea').html(null);
+    
+  });
+</script>
+</body>
+</html>
