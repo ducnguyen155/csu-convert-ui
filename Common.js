@@ -1,11 +1,18 @@
 function convertCommon(){
     convertCssCommon();
+    addGridToolbar();
 }
 
 function convertCssCommon(){
     const buttons = u('.doaction-point').filter('button');
     u(buttons).removeClass('doaction-point');
     u(buttons).addClass('doaction on');
+}
+
+function addGridToolbar(){
+    u('.grid-pnl').each(function (nGrid, iGrid) {
+        u(u(nGrid.parentNode).find('.caption-pnl')).append('<span class="fr" id="' + nGrid.id + 'Toolbar"></span>');
+    })
 }
 
 function formatHTML() {
