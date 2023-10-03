@@ -82,7 +82,7 @@ function convertInputSearchArea() {
     u(buttons).addClass('search-icon');
 
     //Add class search for search-inputbox
-    u('.search-inputbox button has(button .search-icon)').each(function(node, i){
+    u('.search-inputbox button:has(button .search-icon)').each(function(node, i){
         node.addClass('search');
     })
 }
