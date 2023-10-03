@@ -15,7 +15,7 @@ function convertCommonSearchArea() {
                 u('tr', table).each(function (tr, iTr) {
 
                     u(search).append('<dl>');
-                    
+
                     const thList = u(tr).children('th, td');
                     convertColInTable(thList, search);
                 })
@@ -46,7 +46,7 @@ function convertColInTable(thList) {
             const td = thList.nodes[i + 1];
             //Convert and move th, td to div search-inputbox
             u(u('.search-pnl .search dl').last()).append('<div class="search-inputbox">');
-            u(u('dl .search-inputbox').last()).append('<lable>' + th.innerHTML + '</lable>')
+            u(u('dl .search-inputbox').last()).append('<label>' + th.innerHTML + '</label>')
                 .append(td.innerHTML);
             i++;
         } else {
@@ -63,7 +63,7 @@ function convertColInTable(thList) {
 function convertSearchButton() {
     u('.search-pnl .search').each(function (search, iSearch) {
         //Add common button 1. Searbox Box Area Expand Button
-        u(search).append('<button  type="button"  class="search-showhide-icon"  id="logDetailSearch"></button>');
+        u(search).append('<button  type="button"  class="search-showhide-icon"  id="logDetailSearch" hidden></button>');
 
         //4. Move button
         var searchButtons = u('.buttonset.fr', search);
@@ -98,17 +98,18 @@ function convertInputSearchArea() {
 }
 
 function convertGroupCheckBoxInSearchArea() {
-    u('.search-inputbox .selection-grp').each(function (node, i) {
-        const radioCount = u('input[type=radio]', node).nodes.length;
+    u('.search-inputbox .selection-grp').each(function (nSpan, i) {
+        const radioCount = u('input[type=radio]', nSpan).nodes.length;
         if (radioCount > 0) {
-            u(node).addClass('radio-wrap');
+            u(nSpan).addClass('radio-wrap');
             if (radioCount >= 2 && radioCount <= 7) {
-                u(node).addClass('grid-span' + radioCount);
+                u(nSpan).addClass('grid-span' + radioCount);
             }
         }
-        u('label', node).prepend('<i>');
+        u('label', nSpan).prepend('<i>');
+        u(nSpan.parentNode).addClass('radio');
     })
-    u('.search-inputbox lable span').each(function (node, i) {
+    u('.search-inputbox label span').each(function (node, i) {
         node.parentNode.innerText = node.innerText;
     })
 }
