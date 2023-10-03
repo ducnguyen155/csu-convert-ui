@@ -1,3 +1,13 @@
+function convertCommon(){
+    convertCssCommon();
+}
+
+function convertCssCommon(){
+    const buttons = u('.doaction-point').filter('button');
+    u(buttons).removeClass('doaction-point');
+    u(buttons).addClass('doaction on');
+}
+
 function formatHTML() {
     const option = {
         "indent_size": "4",

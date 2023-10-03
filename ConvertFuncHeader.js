@@ -6,25 +6,36 @@ function convertSearchArea() {
 }
 
 function convertCommonSearchArea() {
-    u('.search-pnl .search').each(function (search, iSearch) {
+    let divSearchMain;
+    u('.search-pnl div').each(function (search, iSearch) {
+        if (u(search).hasClass('search')) {
+            //Common search area table
+            divSearchMain = search;
+            u('table', search).each(function (table, iTable) {
+                u('tr', table).each(function (tr, iTr) {
 
-        //Common search area table
-        u('table', search).each(function (table, iTable) {
-            u('tr', table).each(function (tr, iTr) {
-                u(search).append('<dl>');
-                const thList = u(tr).children('th, td');
-                convertColInTable(thList);
-            })
-        });
+                    u(search).append('<dl>');
+                    
+                    const thList = u(tr).children('th, td');
+                    convertColInTable(thList, search);
+                })
+                u(table).remove();
+            });
+        } else { //Div table-pnl sub 
+            u('.sub table', search).each(function (table, iTable) {
+                u('tr', table).each(function (tr, iTr) {
 
-        //Sub search area table
-        u('.sub table', search).each(function (table, iTable) {
-            u('tr', table).each(function (tr, iTr) {
-                u(search).append('<dl class="sub">');
-                const thList = u(tr).children('th, td');
-                convertColInTable(thList);
+                    u(divSearchMain).append('<dl>');
+                    u(u('.search-pnl .search dl').last()).addClass(u(search).attr('class'))
+                        .removeClass('table-pnl')
+                        .attr('id', u(search).attr('id'));
+
+                    const thList = u(tr).children('th, td');
+                    convertColInTable(thList, search);
+                })
+                u(table).remove();
             })
-        })
+        }
     });
 }
 
@@ -71,34 +82,33 @@ function convertSearchButton() {
     });
 
     //Remove tables
-    u('.search-pnl .search table').remove();
-    u('.search-pnl div.sub').remove();
+    // u('.search-pnl .search table').remove();
+    // u('.search-pnl div.sub').remove();
 }
 
 function convertInputSearchArea() {
     //Convert icon-search to search-icon
-    const buttons = u('button .icon-search');
+    const buttons = u('.icon-search').filter('button');
     u(buttons).removeClass('icon-search');
     u(buttons).addClass('search-icon');
 
     //Add class search for search-inputbox
-    u('.search-inputbox button:has(button .search-icon)').each(function(node, i){
-        node.addClass('search');
-    })
+    const divSearch = u('.search-inputbox:has(button)').filter(function (node, i) { return u(node).find('.search-icon') });
+    u(divSearch).addClass('search');
 }
 
 function convertGroupCheckBoxInSearchArea() {
-    u('.search-inputbox .selection-grp').each(function(node, i){
+    u('.search-inputbox .selection-grp').each(function (node, i) {
         const radioCount = u('input[type=radio]', node).nodes.length;
-        if(radioCount > 0){
+        if (radioCount > 0) {
             u(node).addClass('radio-wrap');
-            if(radioCount >= 2 && radioCount <=7){
+            if (radioCount >= 2 && radioCount <= 7) {
                 u(node).addClass('grid-span' + radioCount);
             }
         }
         u('label', node).prepend('<i>');
     })
-    u('.search-inputbox lable span').each(function(node, i){
+    u('.search-inputbox lable span').each(function (node, i) {
         node.parentNode.innerText = node.innerText;
     })
 }
