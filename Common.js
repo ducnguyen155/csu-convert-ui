@@ -29,7 +29,7 @@ function formatHTML() {
         "indent_empty_lines": true
     };
     const htmlFormat = html_beautify(u('#tempArea').html(), option);
-    u('#tempArea #wrap').first().innerHTML = htmlFormat;
+    u('#tempArea').first().innerHTML = htmlFormat;
 
 
 }
