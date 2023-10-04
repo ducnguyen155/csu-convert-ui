@@ -12,6 +12,7 @@ function convertGrid(){
     var grid = beforContent.trim().search('grid:') 
     var gridHeader = 'gridHeader:'; 
     var gridBody = beforContent.trim().search('gridBody:');
+    var bodyWidth = beforContent.trim().search('bodyWidth');
     var space =" ";
     var arrLg =[];
     if(gridHdr >0){
@@ -77,6 +78,19 @@ function convertGrid(){
    }else{ 
       afterContent = afterContent.replace(gridHeader,'toolbarPosition:' + '"'+ toolbarId.trim() +'"' +', \n'+space + gridHeader); 
    }   
+
+   var chkUseBodyWidth = document.getElementById("chkUseBodyWidth").checked;  
+   var maxWidth = 1280;
+   if(chkUseBodyWidth && bodyWidth>=0){  
+       
+      for(var i= bodyWidth + 10; i<beforContent.length; i++) {
+       if(beforContent.charAt(i)==',') 
+            break; 
+            cntTemp += beforContent.charAt(i); 
+      }
+      maxWidth = Number.parseFloat(cntTemp.replace('"', '').trim());
+      cntTemp = '';
+   }
    var p ='';
    for(var i=0; i<beforContent.length; i++){
       var w = beforContent.charAt(i);
@@ -94,7 +108,7 @@ function convertGrid(){
                p += beforContent.charAt(j)
             } 
          }
-         var k = (parseFloat(p)*1280/100).toString();  
+         var k = (parseFloat(p)*maxWidth/100).toString();  
          k= Number(k).toFixed(1);
          afterContent = afterContent.replace(p+'%',k+'px');  
       } 
