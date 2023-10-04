@@ -144,10 +144,17 @@ function addMandatoryForInputInTable() {
 
     var mainInputboxesWithRequiredInput = tablePnl.find(".main-inputbox:has(input.state-required)");
 
-
     // Do something with the filtered <main-inputbox> elements
     if (mainInputboxesWithRequiredInput.length > 0) {
         // For example, you can add a class to them
         mainInputboxesWithRequiredInput.addClass("mandatory");
+    }
+
+    var mainInputboxesWithRequiredSelect = tablePnl.find(".main-inputbox:has(select.state-required)");
+
+    // Do something with the filtered <main-inputbox> elements
+    if (mainInputboxesWithRequiredSelect.length > 0) {
+        // For example, you can add a class to them
+        mainInputboxesWithRequiredSelect.addClass("mandatory");
     }
 }
