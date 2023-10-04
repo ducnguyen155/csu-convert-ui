@@ -178,7 +178,10 @@ function convertGrid(){
                var tmp2 = b;
                if(tmp1.indexOf('dataNX') !=-1 && tmp1.indexOf('type:"num"') != -1){
                   tmp2= b.slice(0,b.length-2) +(',align:"right"'+ b.slice(b.length-2)); 
-               } else{
+               }else if(tmp1.indexOf('type:"button"') != -1 || tmp1.indexOf('type:"checkbox"') !=-1){
+                  tmp2 = b;
+               }
+                else{
                   tmp2= b.slice(0,b.length-2) +(',align:"left"'+ b.slice(b.length-2)); 
                }  
                afterContent = afterContent.replace(b,tmp2); 
