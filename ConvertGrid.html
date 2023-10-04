@@ -5,7 +5,9 @@
     <title>Convert UI/UX</title>
     <!-- Nếu bạn có tập tin JavaScript bên ngoài, bạn có thể nhúng nó như sau: -->
     <script src="ConvertFncGrid.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/umbrellajs"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify-html.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
     <style>
         #btnC, #btnG,  #comeBack {
@@ -37,8 +39,7 @@
 <body>
     <!-- Nội dung trang web được đặt ở đây -->
     <div class="container">
-        <div class="row">
-             
+        <div class="row"> 
         </div>
     </div>
     
@@ -53,8 +54,7 @@
                     <label class="form-check-label" for="chkUseBodyWidth">Use Body Width</label>
                 </span>
             </div>  
-            <textarea style="height: 600px;" class="col-md-12"  
-            class="copy" name="" id="content"></textarea> 
+            <textarea style="height: 600px;" class="col-md-12" class="copy" name="" id="content"></textarea> 
         </div>
         <div class="col-md-6">
             <div style="padding-bottom: 5px;" class="col-md-12">  
@@ -63,7 +63,7 @@
             <textarea style="height: 600px; " class="col-md-12" class="c" name="" id="reSult"> </textarea> 
         </div>  
     </div> 
-    <dialog>
+    <!-- <dialog>
         <div style="background-color: rgb(108, 180, 146); height: 30px;color: rgb(245, 246, 248);">
             <b style="padding: 5px;">Muiti Langguage</b>
         </div> 
@@ -76,12 +76,12 @@
         </div>
         
         
-    </dialog>
+    </dialog> -->
 </body>
 </html>
 <script>
     jQuery(function($){
-	$(document).on('click','#btnC',function(e){ 
+	$(document).on('click','#btnC',function(e){  
 		e.preventDefault();
 		var copyText = document.getElementById("reSult").value;
 		navigator.clipboard.writeText(copyText); 
