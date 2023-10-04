@@ -119,23 +119,23 @@ function convertGrid(){
             } 
             var dtTmp = r.trim().replace('name:','');
             
-            if(c.indexOf('align:')==-1){  
-               if((dtTmp.startsWith('"%$')== false || dtTmp.substring(dtTmp.length-3) !='$%"')&& (dtTmp.replace(/"/g,'').trim()!='')){  
-                  var tmp = r.replace(dtTmp.replace(/"/g,''),'%$'+dtTmp.replace(/"/g,'')+':nokey$%')
-                  arrLg.push(dtTmp.replace(/"/g,''));
-                  afterContent = afterContent.replace(r,tmp+',align:"left"');    
-               }else{
-                  if(dtTmp.replace(/"/g,'').trim()!='')
-                  afterContent = afterContent.replace(r, r+',align:"left"');  
-               }
-               r = '';
-            }else{
+            // if(c.indexOf('align:')==-1){  
+            //    if((dtTmp.startsWith('"%$')== false || dtTmp.substring(dtTmp.length-3) !='$%"')&& (dtTmp.replace(/"/g,'').trim()!='')){  
+            //       var tmp = r.replace(dtTmp.replace(/"/g,''),'%$'+dtTmp.replace(/"/g,'')+':nokey$%')
+            //       arrLg.push(dtTmp.replace(/"/g,''));
+            //       afterContent = afterContent.replace(r,tmp+',align:"left"');    
+            //    }else{
+            //       if(dtTmp.replace(/"/g,'').trim()!='')
+            //       afterContent = afterContent.replace(r, r+',align:"left"');  
+            //    }
+            //    r = '';
+            // }else{
                if((dtTmp.startsWith('"%$')== false || dtTmp.substring(dtTmp.length-3) !='$%"')&& (dtTmp.replace(/"/g,'').trim()!='')){ 
                   var tmp = r.replace(dtTmp.replace(/"/g,''),'%$'+dtTmp.replace(/"/g,'')+':nokey$%')  
                   arrLg.push(dtTmp.replace(/"/g,''));
                   afterContent = afterContent.replace(r,tmp); 
                }
-            } 
+            // } 
        } 
       
       // afterContent = afterContent.replace(c,c+',align: left'); 
