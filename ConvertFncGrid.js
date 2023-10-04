@@ -94,7 +94,8 @@ function convertGrid(){
                p += beforContent.charAt(j)
             } 
          }
-         k = (parseFloat(p)*1280/100).toString();  
+         var k = (parseFloat(p)*1280/100).toString();  
+         k= Number(k).toFixed(1);
          afterContent = afterContent.replace(p+'%',k+'px');  
       } 
       p=''; 
