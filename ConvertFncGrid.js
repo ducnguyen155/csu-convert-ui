@@ -90,11 +90,11 @@ function convertGrid(){
          for(var j = i+5; j <beforContent.length; j++){ 
             if(beforContent.charAt(j)=='%')
             break;
-            if(Number.isFinite(parseInt(beforContent.charAt(j))) || beforContent.charAt(j)=='.'){ 
+            if(Number.isFinite(parseInt(beforContent.charAt(j))) || beforContent.charAt(j)=='.'){  
                p += beforContent.charAt(j)
             } 
          }
-         k = (parseInt(p)*1280/100).toString(); 
+         k = (parseFloat(p)*1280/100).toString();  
          afterContent = afterContent.replace(p+'%',k+'px');  
       } 
       p=''; 
