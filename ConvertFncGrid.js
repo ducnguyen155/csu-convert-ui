@@ -157,20 +157,19 @@ function convertGrid(){
                break;
                }
                
-            }
-            // if(b.charAt(b.length-1)==']'){ 
-            //    return true;
-            // }
-            if(b.indexOf('align:')==-1 && b.replace(/\s+/g,'').trim() !='}' && b.replace(/\s+/g,'').trim() !='},'){
+            } 
+            if(b.indexOf('align:')==-1 && b.replace(/\s+/g,'').trim() !='}' && b.replace(/\s+/g,'').trim() !='},' 
+            && b.replace(/\s+/g,'').trim() !='}}'&& b.replace(/\s+/g,'').trim() !='}}}'){
                var tmp1 = b.replace(/\s+/g,'').trim();
                var tmp2 = b;
                if(tmp1.indexOf('dataNX') !=-1 && tmp1.indexOf('type:"num"') != -1){
-                  tmp2 = b.replace(b.slice(b.length-2),',align:"right"'+ b.slice(b.length-2));
+                  tmp2= b.slice(0,b.length-2) +(',align:"right"'+ b.slice(b.length-2)); 
                } else{
-                  tmp2 = b.replace(b.slice(b.length-2),',align:"left"'+ b.slice(b.length-2));
-               } 
+                  tmp2= b.slice(0,b.length-2) +(',align:"left"'+ b.slice(b.length-2)); 
+               }  
                afterContent = afterContent.replace(b,tmp2); 
-               // console.log('tmp',tmp);
+               console.log(b.replace(/\s+/g,'').trim());
+                b='';
              }
          }
       }
