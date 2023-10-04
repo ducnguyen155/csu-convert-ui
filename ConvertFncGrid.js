@@ -65,7 +65,7 @@ function convertGrid(){
       toolbarId += beforContent.trim().charAt(j); 
     } 
     toolbarId = toolbarId.replace(/\n|\r/g, "");
-    toolbarId = toolbarId.replace(/\s+/g,'').trim();
+    toolbarId = toolbarId.replace(/\s+/g,'').trim() + 'Toolbar';
    if(toolbarPosition>=0){  
        
       for(var i= toolbarPosition + 15; i<beforContent.length; i++) {
@@ -73,7 +73,7 @@ function convertGrid(){
             break; 
             cntTemp += beforContent.charAt(i); 
       }  
-      afterContent = afterContent.replace('toolbarPosition' + cntTemp,'toolbarPosition:'+'"' + toolbarId.trim() + '"'); 
+      afterContent = afterContent.replace('toolbarPosition' + cntTemp,'toolbarPosition:'+'"' + toolbarId.trim() + '"');
       cntTemp = '';
    }else{ 
       afterContent = afterContent.replace(gridHeader,'toolbarPosition:' + '"'+ toolbarId.trim() +'"' +', \n'+space + gridHeader); 

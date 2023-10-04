@@ -123,7 +123,7 @@ function convertSelectInTable() {
     var tableList = u('.table-pnl');
     var selectList = tableList.find('select');
     selectList.map(function(node, i){
-        $(node).wrap('<span class="main-inputbox">');
+        $(node).wrap('<span class="main-inputbox selectbox">');
     });
 }
 
