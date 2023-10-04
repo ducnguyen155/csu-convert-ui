@@ -123,8 +123,7 @@ function convertGrid(){
          for(var w = i; w <beforContent.length; w++){  
             if(beforContent.charAt(w)=='}' && beforContent.charAt(w+1).trim()==',')
             break;
-            c += beforContent.charAt(w) 
-            
+            c += beforContent.charAt(w);  
          } 
          var r='' 
             for(var k = i; k <beforContent.length; k++){ 
@@ -132,7 +131,7 @@ function convertGrid(){
                break;
                r += beforContent.charAt(k) 
             } 
-            var dtTmp = r.trim().replace('name:','');
+            var dtTemp = r.trim().replace('name:','');
             
             // if(c.indexOf('align:')==-1){  
             //    if((dtTmp.startsWith('"%$')== false || dtTmp.substring(dtTmp.length-3) !='$%"')&& (dtTmp.replace(/"/g,'').trim()!='')){  
@@ -145,10 +144,10 @@ function convertGrid(){
             //    }
             //    r = '';
             // }else{
-               if((dtTmp.startsWith('"%$')== false || dtTmp.substring(dtTmp.length-3) !='$%"')&& (dtTmp.replace(/"/g,'').trim()!='')){ 
-                  var tmp = r.replace(dtTmp.replace(/"/g,''),'%$'+dtTmp.replace(/"/g,'')+':nokey$%')  
-                  arrLg.push(dtTmp.replace(/"/g,''));
-                  afterContent = afterContent.replace(r,tmp); 
+               if((dtTemp.startsWith('"%$')== false || dtTmp.substring(dtTemp.length-3) !='$%"')&& (dtTemp.replace(/"/g,'').trim()!='')){ 
+                  var temp = r.replace(dtTmp.replace(/"/g,''),'%$'+dtTemp.replace(/"/g,'')+':nokey$%')  
+                  arrLg.push(dtTemp.replace(/"/g,''));
+                  afterContent = afterContent.replace(r,temp); 
                }
             // } 
        } 
@@ -174,17 +173,17 @@ function convertGrid(){
             } 
             if(b.indexOf('align:')==-1 && b.replace(/\s+/g,'').trim() !='}' && b.replace(/\s+/g,'').trim() !='},' 
             && b.replace(/\s+/g,'').trim() !='}}'&& b.replace(/\s+/g,'').trim() !='}}}'){
-               var tmp1 = b.replace(/\s+/g,'').trim();
-               var tmp2 = b;
-               if(tmp1.indexOf('dataNX') !=-1 && tmp1.indexOf('type:"num"') != -1){
-                  tmp2= b.slice(0,b.length-2) +(',align:"right"'+ b.slice(b.length-2)); 
-               }else if(tmp1.indexOf('type:"button"') != -1 || tmp1.indexOf('type:"checkbox"') !=-1){
-                  tmp2 = b;
+               var temp1 = b.replace(/\s+/g,'').trim();
+               var temp2 = b;
+               if(temp1.indexOf('dataNX') !=-1 && temp1.indexOf('type:"num"') != -1){
+                  temp2= b.slice(0,b.length-2) +(',align:"right"'+ b.slice(b.length-2)); 
+               }else if(temp1.indexOf('type:"button"') != -1 || temp1.indexOf('type:"checkbox"') !=-1){
+                  temp2 = b;
                }
                 else{
-                  tmp2= b.slice(0,b.length-2) +(',align:"left"'+ b.slice(b.length-2)); 
+                  temp2= b.slice(0,b.length-2) +(',align:"left"'+ b.slice(b.length-2)); 
                }  
-               afterContent = afterContent.replace(b,tmp2);  
+               afterContent = afterContent.replace(b,temp2);  
                 b='';
              }
          }
