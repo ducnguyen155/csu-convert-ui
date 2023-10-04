@@ -76,10 +76,22 @@ function convertSearchButton() {
         }
 
         //3. Search Filter Reset Button
-        u('.buttonset.fr', search).prepend('<button type="button" class="dorefresh" id="btnC"></button>');
+        u(u('.buttonset.fr', search).last()).prepend('<button type="button" class="dorefresh" id="btnC"></button>');
         // 2. Search Filter Save Button 
-        u('.buttonset.fr', search).prepend('<button type="button" class="dofilter-save" id="btnSave"></button>');
+        u(u('.buttonset.fr', search).last()).prepend('<button type="button" class="dofilter-save" id="btnSave"></button>');
+
+        //Remove span empty
+        u(u('.buttonset.fr', search)).filter(function (node, i) {
+            return node.innerHTML == ''
+        }).remove();
+
+        //Remove div empty
+        u(u('dl .search-inputbox', search)).filter(function (node, i) {
+            return node.innerHTML == ''
+        }).remove();
     });
+
+
 
     //Remove tables
     // u('.search-pnl .search table').remove();
