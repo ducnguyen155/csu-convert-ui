@@ -158,9 +158,9 @@ function convertGrid(){
                }
                
             }
-            if(b.charAt(b.length-1)==']'){ 
-               return true;
-            }
+            // if(b.charAt(b.length-1)==']'){ 
+            //    return true;
+            // }
             if(b.indexOf('align:')==-1 && b.replace(/\s+/g,'').trim() !='}'){
                var tmp1 = b.replace(/\s+/g,'').trim();
                var tmp2 = b;
