@@ -1,6 +1,8 @@
 function convertCommon(){
     convertCssCommon();
     addGridToolbar();
+    convertButtonsName();
+    convertLabelsName();
 }
 
 function convertCssCommon(){
@@ -13,6 +15,32 @@ function addGridToolbar(){
     u('.grid-pnl').each(function (nGrid, iGrid) {
         u(u(nGrid.parentNode).find('.caption-pnl')).append('<span class="fr" id="' + nGrid.id + 'Toolbar"></span>');
     })
+}
+
+function convertButtonsName(){
+    u('#tempArea button').each(function (button, i){
+        if(button.childNodes.length && !isValidName(button.innerText)){
+            button.innerText = '%$' + button.innerText + ':' + button.innerText +'$%';
+        }
+    });
+}
+
+function convertLabelsName(){
+    u('#tempArea label').each(function (label, i){
+        if(label.childNodes.length && !isValidName(label.innerText)){
+            label.innerText = '%$' + label.innerText + ':' + label.innerText +'$%';
+        }
+    });
+}
+
+function isValidName(name) {
+    const pattern = /^%\$.+:\w+\$%$/;
+    const isMatch = pattern.test(name);
+    if (isMatch) {
+        return true;
+    } else {
+        false
+    }
 }
 
 function formatHTML() {
@@ -37,7 +65,5 @@ function formatHTML() {
     };
     const htmlFormat = html_beautify(u('#tempArea').html(), option);
     u('#tempArea').first().innerHTML = htmlFormat;
-
-
 }
 
