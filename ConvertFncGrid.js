@@ -144,8 +144,8 @@ function convertGrid(){
             //    }
             //    r = '';
             // }else{
-               if((dtTemp.startsWith('"%$')== false || dtTmp.substring(dtTemp.length-3) !='$%"')&& (dtTemp.replace(/"/g,'').trim()!='')){ 
-                  var temp = r.replace(dtTmp.replace(/"/g,''),'%$'+dtTemp.replace(/"/g,'')+':nokey$%')  
+               if((dtTemp.startsWith('"%$')== false || dtTemp.substring(dtTemp.length-3) !='$%"')&& (dtTemp.replace(/"/g,'').trim()!='')){ 
+                  var temp = r.replace(dtTemp.replace(/"/g,''),'%$'+dtTemp.replace(/"/g,'')+':nokey$%')  
                   arrLg.push(dtTemp.replace(/"/g,''));
                   afterContent = afterContent.replace(r,temp); 
                }
@@ -158,6 +158,8 @@ function convertGrid(){
    if(gridBody>0){
       beforContent = afterContent; 
       var girBdIndx = beforContent.indexOf('gridBody:');
+      space ='';
+      var arrSpace =[];
       for(var i = girBdIndx; i<beforContent.length; i++){
          var b=''; 
          if(beforContent.charAt(i)=='\n'){
@@ -168,27 +170,33 @@ function convertGrid(){
                    c = c.replace(/\s+/g,'').trim();
                if(beforContent.charAt(j+1) == '\n' && (c.charAt(0)==','|| c.charAt(0)==']') ){  
                break;
-               }
-               
+               } 
             } 
+
+            for(var k =0;  k < b.length - b.replace(/\s+/g,'').trim().length; k++){
+               space +=' ';
+            } 
+            arrSpace.push(space);
             if(b.indexOf('align:')==-1 && b.replace(/\s+/g,'').trim() !='}' && b.replace(/\s+/g,'').trim() !='},' 
             && b.replace(/\s+/g,'').trim() !='}}'&& b.replace(/\s+/g,'').trim() !='}}}'){
                var temp1 = b.replace(/\s+/g,'').trim();
                var temp2 = b;
                if(temp1.indexOf('dataNX') !=-1 && temp1.indexOf('type:"num"') != -1){
-                  temp2= b.slice(0,b.length-2) +(',align:"right"'+ b.slice(b.length-2)); 
+                  temp2= temp1.slice(0,temp1.length-2) +(',align:"right"'+ b.slice(temp1.length-2)); 
                }else if(temp1.indexOf('type:"button"') != -1 || temp1.indexOf('type:"checkbox"') !=-1){
-                  temp2 = b;
+                  temp2 = temp1;
                }
                 else{
-                  temp2= b.slice(0,b.length-2) +(',align:"left"'+ b.slice(b.length-2)); 
+                  temp2= temp1.slice(0,temp1.length-2) +(',align:"left"'+ temp1.slice(temp1.length-2)); 
                }  
-               afterContent = afterContent.replace(b,temp2);  
+               afterContent = afterContent.replace(b,arrSpace[0]+temp2);  
                 b='';
+               
              }
+             space ='';
          }
       }
-      document.getElementById("reSult").value = afterContent  
+      document.getElementById("reSult").value = afterContent;  
    } 
    arrLg = [];  
 }else{
