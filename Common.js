@@ -3,6 +3,7 @@ function convertCommon(){
     addGridToolbar();
     convertButtonsName();
     convertLabelsName();
+    convertButtonAddDelRow();
 }
 
 function convertCssCommon(){
@@ -41,6 +42,20 @@ function isValidName(name) {
     } else {
         false
     }
+}
+
+function convertButtonAddDelRow(){
+    u('#tempArea button').each(function (button, i){
+        if(button.childNodes.length && u(button).hasClass('doaction')){
+            if(button.innerText == '%$Add Row:Add Row$%'){
+                u(button).removeClass('doaction');
+                u(button).addClass('doaction-plus');
+            } else if(button.innerText == '%$Delete Row:Delete Row$%'){
+                u(button).removeClass('doaction');
+                u(button).addClass('doaction-minus');
+            }
+        }
+    });
 }
 
 function formatHTML() {

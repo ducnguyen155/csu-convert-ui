@@ -118,7 +118,7 @@ function convertGroupCheckBoxInSearchArea() {
                 u(nSpan).addClass('grid-span' + radioCount);
             }
         }
-        u('label', nSpan).prepend('<i>');
+        u('label:not(:has(i))', nSpan).prepend('<i>');
         u(nSpan.parentNode).addClass('radio');
     })
     u('.search-inputbox label span').each(function (node, i) {
