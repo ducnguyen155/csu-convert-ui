@@ -98,23 +98,13 @@
 
 </html>
 <script>
-    jQuery(function ($) {
-        $(document).on('click', '#btnC', function (e) {
-            e.preventDefault();
-            var copyText = document.getElementById("reSult").value;
-            navigator.clipboard.writeText(copyText);
-        });
+     $(document).ready(function(){
+      $("#btnC").click(function(e){
+        e.preventDefault();
+		var copyText = document.getElementById("reSult").value;
+		navigator.clipboard.writeText(copyText); 
+      }); 
     });
-
-    jQuery(function ($) {
-        $(document).on('click', '#btnCopyDialog', function (e) {
-            e.preventDefault();
-            var copyText = document.getElementById("multiLaguage").value;
-            navigator.clipboard.writeText(copyText);
-            document.querySelector("dialog").close();
-        });
-    });
-
     function convertHTML() {
         // Get the value from Input 1
         const content = document.getElementById('content');
