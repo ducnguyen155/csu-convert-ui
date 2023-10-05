@@ -1,35 +1,36 @@
-function convertCommon(){
+function convertCommon() {
     convertCssCommon();
     addGridToolbar();
     convertButtonsName();
     convertLabelsName();
     convertButtonAddDelRow();
+    convertButtonInFooter();
 }
 
-function convertCssCommon(){
+function convertCssCommon() {
     const buttons = u('.doaction-point').filter('button');
     u(buttons).removeClass('doaction-point');
     u(buttons).addClass('doaction on');
 }
 
-function addGridToolbar(){
+function addGridToolbar() {
     u('.grid-pnl').each(function (nGrid, iGrid) {
         u(u(nGrid.parentNode).find('.caption-pnl')).append('<span class="fr" id="' + nGrid.id + 'Toolbar"></span>');
     })
 }
 
-function convertButtonsName(){
-    u('#tempArea button').each(function (button, i){
-        if(button.childNodes.length && !isValidName(button.innerText)){
-            button.innerText = '%$' + button.innerText + ':' + button.innerText +'$%';
+function convertButtonsName() {
+    u('#tempArea button').each(function (button, i) {
+        if (button.childNodes.length && !isValidName(button.innerText)) {
+            button.innerText = '%$' + button.innerText + ':' + button.innerText + '$%';
         }
     });
 }
 
-function convertLabelsName(){
-    u('#tempArea label').each(function (label, i){
-        if(label.childNodes.length && !isValidName(label.innerText)){
-            label.innerText = '%$' + label.innerText + ':' + label.innerText +'$%';
+function convertLabelsName() {
+    u('#tempArea label').each(function (label, i) {
+        if (label.childNodes.length && !isValidName(label.innerText)) {
+            label.innerText = '%$' + label.innerText + ':' + label.innerText + '$%';
         }
     });
 }
@@ -44,18 +45,29 @@ function isValidName(name) {
     }
 }
 
-function convertButtonAddDelRow(){
-    u('#tempArea button').each(function (button, i){
-        if(button.childNodes.length && u(button).hasClass('doaction')){
-            if(button.innerText == '%$Add Row:Add Row$%'){
+function convertButtonAddDelRow() {
+    u('#tempArea button').each(function (button, i) {
+        if (button.childNodes.length && u(button).hasClass('doaction')) {
+            if (button.innerText == '%$Add Row:Add Row$%') {
                 u(button).removeClass('doaction');
                 u(button).addClass('doaction-plus');
-            } else if(button.innerText == '%$Delete Row:Delete Row$%'){
+            } else if (button.innerText == '%$Delete Row:Delete Row$%') {
                 u(button).removeClass('doaction');
                 u(button).addClass('doaction-minus');
             }
         }
     });
+}
+
+function convertButtonInFooter() {
+    const buttons = u('footer .buttonset.fr button').filter(function (button, iButton) {
+        return u(button).attr('class') == 'doaction';
+    });
+    if (u('footer .buttonset.fl').nodes.length == 0) {
+        u('footer').prepend('<span class="buttonset fl">');
+    }
+    u('footer .buttonset.fl').append(buttons);
+    u(buttons).remove();
 }
 
 function formatHTML() {
