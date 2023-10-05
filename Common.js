@@ -1,8 +1,8 @@
 function convertCommon(){
     convertCssCommon();
     addGridToolbar();
-    convertButtonsName();
-    convertLabelsName();
+    //convertButtonsName();
+    //convertLabelsName();
 }
 
 function convertCssCommon(){
