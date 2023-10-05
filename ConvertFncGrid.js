@@ -12,6 +12,7 @@ function convertGrid(){
     var grid = beforContent.trim().search('grid:') 
     var gridHeader = 'gridHeader:'; 
     var gridBody = beforContent.trim().search('gridBody:');
+    var gridBottom = beforContent.trim().search('gridBottom:');
     var bodyWidth = beforContent.trim().search('bodyWidth');
     var space =" ";
     var arrLg =[];
@@ -172,6 +173,10 @@ function convertGrid(){
                break;
                } 
             } 
+            if(b.search('gridBottom:')!=-1){
+               document.getElementById("reSult").value = afterContent;  
+               return true;
+            }
 
             for(var k =0;  k < b.length - b.replace(/\s+/g,'').trim().length; k++){
                space +=' ';
@@ -183,7 +188,7 @@ function convertGrid(){
                var temp2 = b;
                if(temp1.indexOf('dataNX') !=-1 && temp1.indexOf('type:"num"') != -1){
                   temp2= temp1.slice(0,temp1.length-2) +(',align:"right"'+ b.slice(temp1.length-2)); 
-               }else if(temp1.indexOf('type:"button"') != -1 || temp1.indexOf('type:"checkbox"') !=-1){
+               }else if(temp1.indexOf('type:"button"') != -1 || temp1.indexOf('type:"checkbox"') !=-1 || temp1.indexOf('type:"select"') !=-1){
                   temp2 = temp1;
                }
                 else{
