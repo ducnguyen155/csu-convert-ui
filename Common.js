@@ -1,8 +1,8 @@
 function convertCommon(){
     convertCssCommon();
     addGridToolbar();
-    //convertButtonsName();
-    //convertLabelsName();
+    convertButtonsName();
+    convertLabelsName();
 }
 
 function convertCssCommon(){
@@ -34,7 +34,7 @@ function convertLabelsName(){
 }
 
 function isValidName(name) {
-    const pattern = /^%\$.+:\w+\$%$/;
+    const pattern = /^%\$.+:\s*.+\s*\$%$/;
     const isMatch = pattern.test(name);
     if (isMatch) {
         return true;
