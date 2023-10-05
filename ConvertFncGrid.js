@@ -13,7 +13,7 @@ function convertGrid(){
     var gridHeader = 'gridHeader:'; 
     var gridBody = beforContent.trim().search('gridBody:');
     var gridBottom = beforContent.trim().search('gridBottom:');
-    var bodyWidth = beforContent.trim().search('bodyWidth');
+    var bodyWidth = beforContent.search('bodyWidth');
     var space =" ";
     var arrLg =[];
     if(gridHdr >0){
@@ -67,6 +67,7 @@ function convertGrid(){
     } 
     toolbarId = toolbarId.replace(/\n|\r/g, "");
     toolbarId = toolbarId.replace(/\s+/g,'').trim() + 'Toolbar';
+    toolbarId = toolbarId.replace('widgetG', 'g'); // widgetGrid100Toolbar > grid100Toolbar
    if(toolbarPosition>=0){  
        
       for(var i= toolbarPosition + 15; i<beforContent.length; i++) {
@@ -202,6 +203,7 @@ function convertGrid(){
              space ='';
          }
       }
+      afterContent = afterContent.replaceAll('"icon-search"', '"search-icon"');
       document.getElementById("reSult").value = afterContent;  
    } 
    arrLg = [];  
