@@ -169,7 +169,7 @@ function convertGrid(){
                 var c = beforContent.trim().slice(j)
                   //  c = c.replace(/\n|\r/g, "");
                    c = c.replace(/\s+/g,'').trim();
-               if(beforContent.charAt(j+1) == '\n' && (c.charAt(0)==','|| c.charAt(0)==']') ){  
+               if(beforContent.charAt(j+1) == '\n'  || c.charAt(0)==']' ){  
                break;
                } 
             } 
@@ -177,7 +177,7 @@ function convertGrid(){
                document.getElementById("reSult").value = afterContent;  
                return true;
             }
-
+            console.log(b)
             for(var k =0;  k < b.length - b.replace(/\s+/g,'').trim().length; k++){
                space +=' ';
             } 
@@ -198,6 +198,7 @@ function convertGrid(){
                 b='';
                
              }
+             b='';
              space ='';
          }
       }
