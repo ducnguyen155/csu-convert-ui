@@ -79,22 +79,8 @@ function convertGrid(){
    }else{ 
       afterContent = afterContent.replace(gridHeader,'toolbarPosition:' + '"'+ toolbarId.trim() +'"' +', \n'+space + gridHeader); 
    }
-   var gridWidth = document.getElementById("gridWidth").value; 
-   // var chkUseBodyWidth = document.getElementById("chkUseBodyWidth").checked;  
-   var maxWidth = 1280;
-   
-
-
-   // if(chkUseBodyWidth && bodyWidth>=0){   
-
-   //    for(var i= bodyWidth + 10; i<beforContent.length; i++) {
-   //     if(beforContent.charAt(i)==',') 
-   //          break; 
-   //         cntTemp += beforContent.charAt(i); 
-   //     }
-   //    maxWidth = Number.parseFloat(cntTemp.replace('"', '').trim());
-   //    cntTemp = '';
-   // }
+   var gridWidth = document.getElementById("gridWidth").value;  
+   var maxWidth = 1280; 
    if(gridWidth=='other'){
       if(document.getElementById("otherVl") && document.getElementById("otherVl").value ==''){
          alert("Please enter size for gird-body");
@@ -133,8 +119,7 @@ function convertGrid(){
             if(Number.isFinite(parseInt(beforContent.charAt(j))) || beforContent.charAt(j)=='.'){  
                p += beforContent.charAt(j)
             } 
-         }
-         
+         } 
          var k = (parseFloat(p)*maxWidth/100).toString();  
          k= Number(k).toFixed(1);
          afterContent = afterContent.replace(p+'%',k+'px');  
@@ -158,19 +143,7 @@ function convertGrid(){
                break;
                r += beforContent.charAt(k) 
             } 
-            var dtTemp = r.trim().replace('name:','');
-            
-            // if(c.indexOf('align:')==-1){  
-            //    if((dtTmp.startsWith('"%$')== false || dtTmp.substring(dtTmp.length-3) !='$%"')&& (dtTmp.replace(/"/g,'').trim()!='')){  
-            //       var tmp = r.replace(dtTmp.replace(/"/g,''),'%$'+dtTmp.replace(/"/g,'')+':nokey$%')
-            //       arrLg.push(dtTmp.replace(/"/g,''));
-            //       afterContent = afterContent.replace(r,tmp+',align:"left"');    
-            //    }else{
-            //       if(dtTmp.replace(/"/g,'').trim()!='')
-            //       afterContent = afterContent.replace(r, r+',align:"left"');  
-            //    }
-            //    r = '';
-            // }else{
+            var dtTemp = r.trim().replace('name:',''); 
                if((dtTemp.startsWith('"%$')== false || dtTemp.substring(dtTemp.length-3) !='$%"')&& (dtTemp.replace(/"/g,'').trim()!='')){ 
                   var temp = r.replace(dtTemp.replace(/"/g,''),'%$'+dtTemp.replace(/"/g,'')+':nokey$%')  
                   arrLg.push(dtTemp.replace(/"/g,''));
@@ -198,8 +171,7 @@ function convertGrid(){
                break;
                } 
        
-            } 
-            
+            }  
             if(b.search('gridBottom:')!=-1){
                document.getElementById("reSult").value = afterContent;  
                return true;
@@ -208,15 +180,22 @@ function convertGrid(){
                space +=' ';
             } 
             arrSpace.push(space);
+            console.log( [",","]","}"].some(el => b.charAt(b.length-1).includes(el)));
+            console.log( b.charAt(b.length-1));
+
             if(b.indexOf('align:')==-1 && b.replace(/\s+/g,'').trim() !='}' && b.replace(/\s+/g,'').trim() !='},' 
-            && b.replace(/\s+/g,'').trim() !='}}'&& b.replace(/\s+/g,'').trim() !='}}}' &&  b.replace(/\s+/g,'').trim() !=']'){
+            && b.replace(/\s+/g,'').trim() !='}}'&& b.replace(/\s+/g,'').trim() !='}}}' &&  b.replace(/\s+/g,'').trim() !=']' 
+            && b.replace(/\s+/g,'').trim().charAt(0) =='{' && b.replace(/\s+/g,'').trim() !=""){
                var temp1 = b.replace(/\s+/g,'').trim();
                var temp2 = b;
-               console.log(temp1.charAt(temp1.length-1));
+               // console.log(temp1.charAt(temp1.length-1));
                 if(temp1.indexOf('dataNX') !=-1 && temp1.indexOf('type:"num"') != -1){
                   if(temp1.charAt(temp1.length-1)=='}'){
                      temp2= temp1.slice(0,temp1.length-1) +(',align:"right"'+ temp1.slice(temp1.length-1)); 
-                  }else{
+                  }else if([",","]","}"].some(el => temp1.charAt(temp1.length-1).includes(el))!=true){
+                     temp2 = temp1 + ',align:"right"';
+                  }
+                  else{
                      temp2= temp1.slice(0,temp1.length-2) +(',align:"right"'+ temp1.slice(temp1.length-2)); 
                   } 
                }else if(temp1.indexOf('type:"button"') != -1 || temp1.indexOf('type:"checkbox"') !=-1 || temp1.indexOf('type:"select"') !=-1){
@@ -225,7 +204,10 @@ function convertGrid(){
                 else{
                   if(temp1.charAt(temp1.length-1)=='}'){
                      temp2= temp1.slice(0,temp1.length-1) +(',align:"left"'+ temp1.slice(temp1.length-1)); 
-                  }else{
+                  }else if([",","]","}"].some(el => temp1.charAt(temp1.length-1).includes(el))!=true){
+                     temp2 = temp1 + ',align:"left"';
+                  }
+                  else{
                      temp2= temp1.slice(0,temp1.length-2) +(',align:"left"'+ temp1.slice(temp1.length-2)); 
                   } 
                }  
@@ -245,19 +227,10 @@ function convertGrid(){
    alert("data is not valid");
 }
 
-}
-
+} 
 function closeDialog(){
    document.querySelector("dialog").close();
-}
-// function clickToCopy(e) {
-//    let input = document.createElement('input')  
-//    document.body.appendChild(input)  
-//    input.value = document.getElementById("test").value // gán giá trị vào input
-//    input.select()  // focus vào input
-//    document.execCommand('copy')  
-//    input.remove()  
-// }
+} 
  
 
 
