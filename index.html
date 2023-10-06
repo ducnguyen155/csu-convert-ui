@@ -41,14 +41,21 @@
             border-color: rgb(102, 152, 206);
         }
 
-        /* #btnH:hover {
+        #btnH:hover {
             background-color: rgb(146, 203, 247); 
             border-color: rgb(102, 152, 206);
-        } */
-        dialog {
-            width: 380px;
+        }
+        #gridWidth, #otherVl {
+            width: 120px;
+            height: 32px;
             padding: 2px;
-            border-radius: 5px;
+            border-radius: 5px; 
+        }
+         #otherVl {
+            width: 150px;
+            height: 32px;
+            padding: 2px; 
+            text-align: right;
         }
     </style>
 </head>
@@ -64,35 +71,33 @@
         <div class="col-md-6">
             <div style="padding-bottom: 5px;" class="col-md-12">
                 <!-- <span><button disabled id="btnH" onclick="convertTable()">Header</button></span> -->
-                <span><button id="btnG" onclick="convertGrid()">Grid</button></span>
-                <span><button id="btnHtml" onclick="convertHTML()">HTML</button></span>
-                <span><input class="form-check-input" type="checkbox" value="" id="chkUseBodyWidth">
-                    <label class="form-check-label" for="chkUseBodyWidth">Use Body Width</label>
+                <span><button class="btn btn-primary btn-sm" id="btnG" onclick="convertGrid()">Grid</button></span>
+                <span><button class="btn btn-primary btn-sm" id="btnHtml" onclick="convertHTML()">HTML</button></span>
+                  <span>
+                    <select onchange="showInput(this)" id="gridWidth">
+                        <option value="default">1280</option>
+                        <option value="bodyWidth">body Width</option>
+                        <option value="other">Other</option> 
+                    </select>
                 </span>
+                <span class="other"> 
+                </span>
+                <!-- <span><input class="form-check-input" type="checkbox" value="" id="chkUseBodyWidth">
+                    <label class="form-check-label" for="chkUseBodyWidth">Use Body Width</label>
+                </span> -->
+                <span><button id="logClear" style="float: right;" class="btn btn-primary btn-sm">
+                    <i class="glyphicon glyphicon-repeat"></i> Clear
+                </button></span>
             </div>
             <textarea style="height: 600px;" class="col-md-12" class="copy" name="" id="content"></textarea>
         </div>
         <div class="col-md-6">
             <div style="padding-bottom: 5px;" class="col-md-12">
-                <span><button id="btnC"> copy</button></span>
+                <span><button class="btn btn-primary btn-sm" id="btnC"> copy</button></span>
             </div>
             <textarea style="height: 600px; " class="col-md-12" class="c" name="" id="reSult"> </textarea>
         </div>
-    </div>
-    <!-- <dialog>
-        <div style="background-color: rgb(108, 180, 146); height: 30px;color: rgb(245, 246, 248);">
-            <b style="padding: 5px;">Muiti Langguage</b>
-        </div> 
-        <div class="dialog"> 
-            <textarea  style="padding: 2px; width:373px; border: node; height: 250px; color: blue;" id="multiLaguage"></textarea>
-            <div>
-                <button onclick="closeDialog()">Close</button>
-                <button id="btnCopyDialog">Copy</button>
-            </div> 
-        </div>
-        
-        
-    </dialog> -->
+    </div> 
     <div id="tempArea" hidden></div>
 </body>
 
@@ -104,7 +109,18 @@
 		var copyText = document.getElementById("reSult").value;
 		navigator.clipboard.writeText(copyText); 
       }); 
-    });
+    }); 
+    function showInput(e){ 
+            if(e.value=='other'){ 
+                $(".other").prepend('<input id ="otherVl" type ="number" required placeholder="0000">'); 
+            }else{
+                // $(".other").remove();
+                if(document.querySelector("#otherVl")){
+                    $("#otherVl").remove();
+                }
+                
+            }
+     }
     function convertHTML() {
         // Get the value from Input 1
         const content = document.getElementById('content');
