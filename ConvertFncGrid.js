@@ -17,8 +17,7 @@ function convertGrid(){
     var space =" ";
     var arrLg =[];
     if(gridHdr >0){
-    for(var i = gridHdr-2; i > 0; i--) {
-      // debugger 
+    for(var i = gridHdr-2; i > 0; i--) { 
       if(beforContent.charAt(i)== '\n')
       break;
       space = space + " ";
@@ -79,19 +78,44 @@ function convertGrid(){
       cntTemp = '';
    }else{ 
       afterContent = afterContent.replace(gridHeader,'toolbarPosition:' + '"'+ toolbarId.trim() +'"' +', \n'+space + gridHeader); 
-   }   
-
-   var chkUseBodyWidth = document.getElementById("chkUseBodyWidth").checked;  
+   }
+   var gridWidth = document.getElementById("gridWidth").value; 
+   // var chkUseBodyWidth = document.getElementById("chkUseBodyWidth").checked;  
    var maxWidth = 1280;
-   if(chkUseBodyWidth && bodyWidth>=0){  
-       
-      for(var i= bodyWidth + 10; i<beforContent.length; i++) {
-       if(beforContent.charAt(i)==',') 
-            break; 
-            cntTemp += beforContent.charAt(i); 
+   
+
+
+   // if(chkUseBodyWidth && bodyWidth>=0){   
+
+   //    for(var i= bodyWidth + 10; i<beforContent.length; i++) {
+   //     if(beforContent.charAt(i)==',') 
+   //          break; 
+   //         cntTemp += beforContent.charAt(i); 
+   //     }
+   //    maxWidth = Number.parseFloat(cntTemp.replace('"', '').trim());
+   //    cntTemp = '';
+   // }
+   if(gridWidth=='other'){
+      if(document.getElementById("otherVl") && document.getElementById("otherVl").value ==''){
+         alert("Please enter size for gird-body");
+         return true;
+      }else{
+         maxWidth = Number.parseFloat(document.getElementById("otherVl").value);
+        
       }
-      maxWidth = Number.parseFloat(cntTemp.replace('"', '').trim());
-      cntTemp = '';
+   }else if(gridWidth=='bodyWidth'){
+      if(bodyWidth>=0){    
+         for(var i= bodyWidth + 10; i<beforContent.length; i++) {
+          if(beforContent.charAt(i)==',') 
+               break; 
+              cntTemp += beforContent.charAt(i); 
+          }
+         maxWidth = Number.parseFloat(cntTemp.replace('"', '').trim());
+         cntTemp = '';
+      }else{
+         alert("bodyWidth is not defined yet");
+         return true;
+      } 
    }
    var p ='';
    for(var i=0; i<beforContent.length; i++){
@@ -110,6 +134,7 @@ function convertGrid(){
                p += beforContent.charAt(j)
             } 
          }
+         
          var k = (parseFloat(p)*maxWidth/100).toString();  
          k= Number(k).toFixed(1);
          afterContent = afterContent.replace(p+'%',k+'px');  
@@ -166,34 +191,43 @@ function convertGrid(){
          var b=''; 
          if(beforContent.charAt(i)=='\n'){
             for(var j = i+1; j<beforContent.length; j++){
-               b += beforContent.charAt(j);
-                var c = beforContent.trim().slice(j)
-                  //  c = c.replace(/\n|\r/g, "");
-                   c = c.replace(/\s+/g,'').trim();
-               if(beforContent.charAt(j+1) == '\n'  || c.charAt(0)==']' ){  
+               b += beforContent.charAt(j); 
+                var c = beforContent.trim().slice(j) 
+                   c = c.replace(/\s+/g,'').trim(); 
+               if(beforContent.charAt(j+1) == '\n' || c==']' ){  
                break;
                } 
+       
             } 
+            
             if(b.search('gridBottom:')!=-1){
                document.getElementById("reSult").value = afterContent;  
                return true;
-            }
-            console.log(b)
+            } 
             for(var k =0;  k < b.length - b.replace(/\s+/g,'').trim().length; k++){
                space +=' ';
             } 
             arrSpace.push(space);
             if(b.indexOf('align:')==-1 && b.replace(/\s+/g,'').trim() !='}' && b.replace(/\s+/g,'').trim() !='},' 
-            && b.replace(/\s+/g,'').trim() !='}}'&& b.replace(/\s+/g,'').trim() !='}}}'){
+            && b.replace(/\s+/g,'').trim() !='}}'&& b.replace(/\s+/g,'').trim() !='}}}' &&  b.replace(/\s+/g,'').trim() !=']'){
                var temp1 = b.replace(/\s+/g,'').trim();
                var temp2 = b;
-               if(temp1.indexOf('dataNX') !=-1 && temp1.indexOf('type:"num"') != -1){
-                  temp2= temp1.slice(0,temp1.length-2) +(',align:"right"'+ b.slice(temp1.length-2)); 
+               console.log(temp1.charAt(temp1.length-1));
+                if(temp1.indexOf('dataNX') !=-1 && temp1.indexOf('type:"num"') != -1){
+                  if(temp1.charAt(temp1.length-1)=='}'){
+                     temp2= temp1.slice(0,temp1.length-1) +(',align:"right"'+ temp1.slice(temp1.length-1)); 
+                  }else{
+                     temp2= temp1.slice(0,temp1.length-2) +(',align:"right"'+ temp1.slice(temp1.length-2)); 
+                  } 
                }else if(temp1.indexOf('type:"button"') != -1 || temp1.indexOf('type:"checkbox"') !=-1 || temp1.indexOf('type:"select"') !=-1){
                   temp2 = temp1;
                }
                 else{
-                  temp2= temp1.slice(0,temp1.length-2) +(',align:"left"'+ temp1.slice(temp1.length-2)); 
+                  if(temp1.charAt(temp1.length-1)=='}'){
+                     temp2= temp1.slice(0,temp1.length-1) +(',align:"left"'+ temp1.slice(temp1.length-1)); 
+                  }else{
+                     temp2= temp1.slice(0,temp1.length-2) +(',align:"left"'+ temp1.slice(temp1.length-2)); 
+                  } 
                }  
                afterContent = afterContent.replace(b,arrSpace[0]+temp2);  
                 b='';
