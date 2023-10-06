@@ -6,32 +6,38 @@ function convertSearchArea() {
 }
 
 function convertCommonSearchArea() {
+    //Check and add div search
+    u('.search-pnl:not(div:has(.search)').prepend('<div class="search">');
+
     let divSearchMain;
-    u('.search-pnl div').each(function (search, iSearch) {
-        if (u(search).hasClass('search')) {
+    u('.search-pnl div').each(function (div, iDiv) {
+        //Get div search
+        divSearchMain = u('.search', div.parentElement);
+
+        if (u(div).hasClass('search')) {
             //Common search area table
-            divSearchMain = search;
-            u('table', search).each(function (table, iTable) {
+            u('table', div).each(function (table, iTable) {
                 u('tr', table).each(function (tr, iTr) {
 
-                    u(search).append('<dl>');
+                    u(div).append('<dl>');
 
                     const thList = u(tr).children('th, td');
-                    convertColInTable(thList, search);
+                    convertColInTable(thList, div);
                 })
                 u(table).remove();
             });
         } else { //Div table-pnl sub 
-            u('.sub table', search).each(function (table, iTable) {
+            u('.sub table', div).each(function (table, iTable) {
                 u('tr', table).each(function (tr, iTr) {
-
+                    const divPnlId = u(div).attr('id');
+                    const tableId = table.id;
                     u(divSearchMain).append('<dl>');
-                    u(u('.search-pnl .search dl').last()).addClass(u(search).attr('class'))
+                    u(u('.search-pnl .search dl').last()).addClass(u(div).attr('class'))
                         .removeClass('table-pnl')
-                        .attr('id', u(search).attr('id'));
+                        .attr('id', divPnlId != null ? divPnlId : tableId);
 
                     const thList = u(tr).children('th, td');
-                    convertColInTable(thList, search);
+                    convertColInTable(thList, div);
                 })
                 u(table).remove();
             })
@@ -48,12 +54,14 @@ function convertColInTable(thList) {
             u(u('.search-pnl .search dl').last()).append('<div class="search-inputbox">');
             u(u('dl .search-inputbox').last()).append('<label>' + th.innerHTML + '</label>')
                 .append(td.innerHTML);
+            u(u('dl .search-inputbox').last()).attr('id', td.id != null ? td.id : th.id);
             i++;
         } else {
             const td = thList.nodes[i];
             if (td.innerHTML != '') {
                 u(u('.search-pnl .search dl').last()).append('<div class="search-inputbox">');
                 u(u('dl .search-inputbox').last()).append(td.innerHTML);
+                u(u('dl .search-inputbox').last()).attr('id', td.id);
             }
 
         }
@@ -91,11 +99,8 @@ function convertSearchButton() {
         }).remove();
     });
 
-
-
-    //Remove tables
-    // u('.search-pnl .search table').remove();
-    // u('.search-pnl div.sub').remove();
+    //Remove empty div 
+    u('.search-pnl .table-pnl:not(:has(*))').remove();
 }
 
 function convertInputSearchArea() {

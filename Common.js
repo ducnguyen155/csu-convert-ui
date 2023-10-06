@@ -15,7 +15,12 @@ function convertCssCommon() {
 
 function addGridToolbar() {
     u('.grid-pnl').each(function (nGrid, iGrid) {
-        u(u(nGrid.parentNode).find('.caption-pnl')).append('<span class="fr" id="' + nGrid.id + 'Toolbar"></span>');
+        var captionPnl = u(u(nGrid.parentNode).find('.caption-pnl'));
+        if (captionPnl.nodes.length == 1) {
+            u(captionPnl).append('<span class="fr" id="' + nGrid.id + 'Toolbar"></span>');
+        } else if (captionPnl.nodes.length != 0 && captionPnl.nodes.length > iGrid) {
+            u(captionPnl.nodes[iGrid]).append('<span class="fr" id="' + nGrid.id + 'Toolbar"></span>');
+        }
     })
 }
 
