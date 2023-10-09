@@ -1,21 +1,22 @@
 var beforContent =""; 
 var afterContent =""
 var cntTemp = '';
+var gridHeader = 'gridHeader:'; 
+
 function convertGrid(){ 
    beforContent = document.getElementById("content").value;
-   afterContent = document.getElementById("content").value;  
-    var dynamicGrid = beforContent.search('dynamicGrid')
-    var numberingTitleText = beforContent.search('numberingTitleText')
-    var totalCntString = beforContent.search('totalCntString')
-    var toolbarPosition = beforContent.search('toolbarPosition')
-    var gridHdr = beforContent.search('gridHeader')
-    var grid = beforContent.trim().search('grid:') 
-    var gridHeader = 'gridHeader:'; 
-    var gridBody = beforContent.trim().search('gridBody:');
-    var gridBottom = beforContent.trim().search('gridBottom:');
-    var bodyWidth = beforContent.search('bodyWidth');
+   afterContent = document.getElementById("content").value;   
+   var dynamicGrid = beforContent.search('dynamicGrid')
+   var numberingTitleText = beforContent.search('numberingTitleText')
+   var totalCntString = beforContent.search('totalCntString')
+   var toolbarPosition = beforContent.search('toolbarPosition')
+   var gridHdr = beforContent.search('gridHeader')
+   var grid = beforContent.trim().search('grid:')  
+   var gridBody = beforContent.trim().search('gridBody:');
+   var gridBottom = beforContent.trim().search('gridBottom:');
+   var bodyWidth = beforContent.search('bodyWidth');
     var space =" ";
-    var arrLg =[];
+    var arrLg =[]; 
     if(gridHdr >0){
     for(var i = gridHdr-2; i > 0; i--) { 
       if(beforContent.charAt(i)== '\n')
@@ -79,11 +80,11 @@ function convertGrid(){
    }else{ 
       afterContent = afterContent.replace(gridHeader,'toolbarPosition:' + '"'+ toolbarId.trim() +'"' +', \n'+space + gridHeader); 
    }
-   var gridWidth = document.getElementById("gridWidth").value;  
+   var gridWidth = document.getElementById("gridWidth") ? document.getElementById("gridWidth").value : 0;  
    var maxWidth = 1280; 
    if(gridWidth=='other'){
       if(document.getElementById("otherVl") && document.getElementById("otherVl").value ==''){
-         alert("Please enter size for gird-body");
+         alert("Please enter width for grid-body");
          return true;
       }else{
          maxWidth = Number.parseFloat(document.getElementById("otherVl").value);
@@ -103,14 +104,16 @@ function convertGrid(){
          return true;
       } 
    }
+   
+
    var p ='';
    for(var i=0; i<beforContent.length; i++){
-      var w = beforContent.charAt(i);
-      var y = beforContent.charAt(i+1);
-      var d = beforContent.charAt(i+2);
-      var t = beforContent.charAt(i+3);
-      var h = beforContent.charAt(i+4);
-      var f = beforContent.charAt(i+5); 
+       var w = beforContent.charAt(i);
+       var y = beforContent.charAt(i+1);
+       var d = beforContent.charAt(i+2);
+       var t = beforContent.charAt(i+3);
+       var h = beforContent.charAt(i+4);
+       var f = beforContent.charAt(i+5); 
       if(w+y+d+t+h+f =='width:'){  
          var k = '';   
          for(var j = i+5; j <beforContent.length; j++){ 
@@ -148,11 +151,8 @@ function convertGrid(){
                   var temp = r.replace(dtTemp.replace(/"/g,''),'%$'+dtTemp.replace(/"/g,'')+':nokey$%')  
                   arrLg.push(dtTemp.replace(/"/g,''));
                   afterContent = afterContent.replace(r,temp); 
-               }
-            // } 
-       } 
-      
-      // afterContent = afterContent.replace(c,c+',align: left'); 
+               } 
+       }  
       document.getElementById("reSult").value = afterContent
    } 
    if(gridBody>0){
@@ -164,9 +164,9 @@ function convertGrid(){
          var b=''; 
          if(beforContent.charAt(i)=='\n'){
             for(var j = i+1; j<beforContent.length; j++){
-               b += beforContent.charAt(j); 
+                    b += beforContent.charAt(j); 
                 var c = beforContent.trim().slice(j) 
-                   c = c.replace(/\s+/g,'').trim(); 
+                    c = c.replace(/\s+/g,'').trim(); 
                if(beforContent.charAt(j+1) == '\n' || c==']' ){  
                break;
                } 
@@ -179,16 +179,13 @@ function convertGrid(){
             for(var k =0;  k < b.length - b.replace(/\s+/g,'').trim().length; k++){
                space +=' ';
             } 
-            arrSpace.push(space);
-            console.log( [",","]","}"].some(el => b.charAt(b.length-1).includes(el)));
-            console.log( b.charAt(b.length-1));
+            arrSpace.push(space); 
 
             if(b.indexOf('align:')==-1 && b.replace(/\s+/g,'').trim() !='}' && b.replace(/\s+/g,'').trim() !='},' 
             && b.replace(/\s+/g,'').trim() !='}}'&& b.replace(/\s+/g,'').trim() !='}}}' &&  b.replace(/\s+/g,'').trim() !=']' 
             && b.replace(/\s+/g,'').trim().charAt(0) =='{' && b.replace(/\s+/g,'').trim() !=""){
                var temp1 = b.replace(/\s+/g,'').trim();
-               var temp2 = b;
-               // console.log(temp1.charAt(temp1.length-1));
+               var temp2 = b; 
                 if(temp1.indexOf('dataNX') !=-1 && temp1.indexOf('type:"num"') != -1){
                   if(temp1.charAt(temp1.length-1)=='}'){
                      temp2= temp1.slice(0,temp1.length-1) +(',align:"right"'+ temp1.slice(temp1.length-1)); 
@@ -225,9 +222,120 @@ function convertGrid(){
    arrLg = [];  
 }else{
    alert("data is not valid");
-}
-
 } 
+}  
+function widthBalance(){  
+   beforContent = document.getElementById("content").value;
+   var gridHdIdx = beforContent.indexOf(gridHeader);
+   if(gridHdIdx!=-1){
+      var arrTemp =[];
+      for(var i=gridHdIdx+11; i < beforContent.length; i++){
+         var strTemp1 ="";
+         
+         if(beforContent.charAt(i)=='\n'){
+            for(var j = i+1; j<beforContent.length; j++){
+                strTemp1 += beforContent.charAt(j);  
+               if(beforContent.charAt(j+1) == '\n'){  
+               break;
+               }  
+            } 
+            if(strTemp1.replace(/\s+/g,'').trim().indexOf('width:')!=-1){
+               arrTemp.push(strTemp1);
+            }
+         }
+         if(beforContent.charAt(i)==']' && beforContent.charAt(i+1)=='1'){
+            break
+         }
+      }
+      var widthSum = 0;
+      if(arrTemp.length>0){ 
+         arrTemp.forEach(function(currVl,idx){
+            for(var k =0 ; k< currVl.replace(/\s+/g,'').trim().length; k++){
+               var w = currVl.replace(/\s+/g,'').trim().charAt(k);
+               var y = currVl.replace(/\s+/g,'').trim().charAt(k+1);
+               var d = currVl.replace(/\s+/g,'').trim().charAt(k+2);
+               var t = currVl.replace(/\s+/g,'').trim().charAt(k+3);
+               var h = currVl.replace(/\s+/g,'').trim().charAt(k+4);
+               var f = currVl.replace(/\s+/g,'').trim().charAt(k+5); 
+               if(w+y+d+t+h+f =='width:'){   
+                  var numTemp = '';  
+                  var chkNum = /^-?\d+$/; 
+                  for(var j = k+7; j <currVl.replace(/\s+/g,'').trim().length; j++){  
+                     if(currVl.replace(/\s+/g,'').trim().charAt(j)=='%' || currVl.replace(/\s+/g,'').trim().charAt(j)=='"')
+                     break; 
+                     if(chkNum.test(currVl.replace(/\s+/g,'').trim().charAt(j)) == false && currVl.replace(/\s+/g,'').trim().charAt(j) !='.'){
+                        numTemp='0';
+                        break
+                     }
+                     if(Number.isFinite(parseInt(currVl.replace(/\s+/g,'').trim().charAt(j))) || currVl.replace(/\s+/g,'').trim().charAt(j)=='.'){  
+                        numTemp += currVl.replace(/\s+/g,'').trim().charAt(j);
+                     } 
+                  } 
+                  widthSum += parseFloat(numTemp);  
+                  numTemp='';
+               }
+            }  
+         }); 
+         arrTemp.forEach(function(currVl,idx){ 
+            for(var k =0 ; k< currVl.replace(/\s+/g,'').trim().length; k++){
+               var w = currVl.replace(/\s+/g,'').trim().charAt(k);
+               var y = currVl.replace(/\s+/g,'').trim().charAt(k+1);
+               var d = currVl.replace(/\s+/g,'').trim().charAt(k+2);
+               var t = currVl.replace(/\s+/g,'').trim().charAt(k+3);
+               var h = currVl.replace(/\s+/g,'').trim().charAt(k+4);
+               var f = currVl.replace(/\s+/g,'').trim().charAt(k+5); 
+               if(w+y+d+t+h+f =='width:'){   
+                  var numTemp = '';    
+                  var textTemp =''; 
+                  var chkNum2 = true;
+                  for(var j = k+7; j <currVl.replace(/\s+/g,'').trim().length; j++){  
+                     var textTemp2 ='';
+                     var chkNum = /^-?\d+$/;   
+                     if(chkNum.test(currVl.replace(/\s+/g,'').trim().charAt(j))==false && currVl.replace(/\s+/g,'').trim().charAt(j) !='.'  && currVl.replace(/\s+/g,'').trim().charAt(j)!='"' && currVl.replace(/\s+/g,'').trim().charAt(j)!='%'){
+                        console.log(currVl.replace(/\s+/g,'').trim().charAt(j))
+                        chkNum2=false;
+                        break;
+                     } 
+                     if(currVl.replace(/\s+/g,'').trim().charAt(j)=='"'){
+                        var textTemp1 = currVl.replace(/\s+/g,'').trim().slice(j)  
+                        var textTemp2 = currVl.replace(textTemp1,'%'+textTemp1);
+                        beforContent = beforContent.replace(currVl,textTemp2);
+                        break;
+                     }
+                     if(currVl.replace(/\s+/g,'').trim().charAt(j)=='%' || currVl.replace(/\s+/g,'').trim().charAt(j)=='"' )
+                     break;
+                     if(Number.isFinite(parseInt(currVl.replace(/\s+/g,'').trim().charAt(j))) || currVl.replace(/\s+/g,'').trim().charAt(j)=='.'){  
+                        numTemp += currVl.replace(/\s+/g,'').trim().charAt(j);
+                     } 
+                  }  
+                  if(chkNum2){
+                   var num = ((parseFloat(numTemp)*100)/widthSum).toString();  
+                   num= Number(num).toFixed(4);
+                   console.log(widthSum)
+                   console.log(num)
+                   textTemp = currVl.replaceAll(numTemp +'%' , num+'%');  
+                   numTemp='';
+                   beforContent = beforContent.replaceAll(currVl,textTemp);  
+                   document.getElementById("content").value = beforContent;
+                  }
+                   
+               }
+            } 
+         });  
+         arrTemp=[];
+         widthSum = 0;
+      }
+   }
+}
+function logClear(){
+   $('#content').val('');
+   if(document.querySelector("#otherVl")){
+      $("#otherVl").remove();
+   }
+   $('#gridWidth option').prop('selected', function () { 
+      return this.defaultSelected;
+  }); 
+}
 function closeDialog(){
    document.querySelector("dialog").close();
 } 
