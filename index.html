@@ -137,7 +137,7 @@
         formatHTML();
         //---------- end add convert function ---
 
-        reSult.value = u('#tempArea').html();
+        reSult.value = u('#tempArea').html().replaceAll('hidden=""', 'hidden');
         u('#tempArea').html(null);
     }
 
