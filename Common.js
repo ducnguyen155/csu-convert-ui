@@ -103,3 +103,11 @@ function getHTMLWithFormat() {
     return htmlFormat;
 }
 
+function verifyHTML(){
+    let msg = '';
+    const reSult = u('#reSult').first().value;
+    if(reSult.indexOf('=""') > -1){
+        msg += 'HTML attributes have empty value (="")\n';
+    }
+    u('#warningZone').first().innerText = msg;
+}

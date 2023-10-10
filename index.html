@@ -58,6 +58,9 @@
             padding: 2px; 
             text-align: right;
         }
+        #warningZone {
+            color:red;
+        }
     </style>
 </head>
 
@@ -100,6 +103,9 @@
                 <textarea style="height: 700px; " class="col-md-12" class="c" name="" id="reSult"> </textarea>
             </div>
         </div>
+        <div class="row">
+            <span id="warningZone"></span>
+        </div>
        
     </div> 
     <div id="tempArea" hidden></div>
@@ -137,6 +143,7 @@
         //---------- end add convert function ---
         reSult.value = getHTMLWithFormat();
         u('#tempArea').html(null);
+        verifyHTML();
     }
 
 </script>
