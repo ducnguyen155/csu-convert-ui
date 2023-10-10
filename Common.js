@@ -75,7 +75,7 @@ function convertButtonInFooter() {
     u(buttons).remove();
 }
 
-function formatHTML() {
+function getHTMLWithFormat() {
     const option = {
         "indent_size": "4",
         "indent_char": " ",
@@ -95,7 +95,11 @@ function formatHTML() {
         "e4x": true,
         "indent_empty_lines": true
     };
-    const htmlFormat = html_beautify(u('#tempArea').html(), option);
-    u('#tempArea').first().innerHTML = htmlFormat;
+    let htmlFormat = html_beautify(u('#tempArea').html(), option);
+    htmlFormat = htmlFormat.replaceAll('hidden=""', 'hidden');
+    htmlFormat = htmlFormat.replaceAll('checked=""', 'checked');
+    htmlFormat = htmlFormat.replaceAll('readonly=""', 'readonly');
+    htmlFormat = htmlFormat.replaceAll('disabled=""', 'disabled');
+    return htmlFormat;
 }
 

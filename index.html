@@ -134,10 +134,8 @@
         convertSearchArea();
         convertTableArea();
         convertCommon();
-        formatHTML();
         //---------- end add convert function ---
-
-        reSult.value = u('#tempArea').html().replaceAll('hidden=""', 'hidden');
+        reSult.value = getHTMLWithFormat();
         u('#tempArea').html(null);
     }
 
