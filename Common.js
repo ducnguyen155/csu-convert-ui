@@ -1,8 +1,7 @@
 function convertCommon() {
     convertCssCommon();
     addGridToolbar();
-    convertButtonsName();
-    convertLabelsName();
+    convertFielddName();
     convertButtonAddDelRow();
     convertButtonInFooter();
 }
@@ -15,38 +14,60 @@ function convertCssCommon() {
 
 function addGridToolbar() {
     u('.grid-pnl').each(function (nGrid, iGrid) {
-        var captionPnl = u(u(nGrid.parentNode).find('.caption-pnl'));
-        if (captionPnl.nodes.length == 1) {
-            u(captionPnl).append('<span class="fr" id="' + nGrid.id + 'Toolbar"></span>');
-        } else if (captionPnl.nodes.length != 0 && captionPnl.nodes.length > iGrid) {
-            u(captionPnl.nodes[iGrid]).append('<span class="fr" id="' + nGrid.id + 'Toolbar"></span>');
+        const captionPnlList = u(u(nGrid.parentNode).find('.caption-pnl'));
+        let captionPnl = null;
+        if (captionPnlList.nodes.length == 1) {          
+            captionPnl = captionPnlList.nodes[0];
+        } else if (captionPnlList.nodes.length != 0 && captionPnlList.nodes.length > iGrid) {
+            captionPnl = captionPnlList.nodes[iGrid];
+        }
+
+        if(captionPnl != null){
+            if(u('h2',captionPnl).nodes.length > 0){
+                u(u('h2',captionPnl).first()).after('<span class="fr" id="' + nGrid.id + 'Toolbar"></span>');
+            }else{
+                u(captionPnlList).prepend('<span class="fr" id="' + nGrid.id + 'Toolbar"></span>');
+            }  
         }
     })
 }
 
-function convertButtonsName() {
+function convertFielddName(){
+    //Convert buttons Name
     u('#tempArea button').each(function (button, i) {
         if (button.childNodes.length && !isValidName(button.innerText)) {
             button.innerText = '%$' + button.innerText + ':' + button.innerText + '$%';
         }
     });
-}
 
-function convertLabelsName() {
+    //Convert Label
     u('#tempArea label').each(function (label, i) {
         if (label.childNodes.length && !isValidName(label.innerText)) {
             label.innerText = '%$' + label.innerText + ':' + label.innerText + '$%';
         }
     });
+
+    //Convert span x-label
+    u('.x-label').each(function (span, i) {
+        if (span.childNodes.length && !isValidName(span.innerText)) {
+            span.innerText = '%$' + span.innerText + ':' + span.innerText + '$%';
+        }
+    });
 }
 
 function isValidName(name) {
+    
+    const skipList = [':']
+    if(skipList.indexOf(name)>=0){
+        return true;
+    }
+
     const pattern = /^%\$.+:\s*.+\s*\$%$/;
     const isMatch = pattern.test(name);
     if (isMatch) {
         return true;
     } else {
-        false
+        return false
     }
 }
 

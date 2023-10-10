@@ -54,7 +54,7 @@ function convertColInTable(thList) {
             u(u('.search-pnl .search dl').last()).append('<div class="search-inputbox">');
             u(u('dl .search-inputbox').last()).append('<label>' + th.innerHTML + '</label>')
                 .append(td.innerHTML);
-            u(u('dl .search-inputbox').last()).attr('id', td.id != null ? td.id : th.id);
+            u(u('dl .search-inputbox').last()).attr('id', td.id != '' ? td.id : th.id);
             i++;
         } else {
             const td = thList.nodes[i];
