@@ -148,7 +148,7 @@ function convertGrid(){
             } 
             var dtTemp = r.trim().replace('name:',''); 
                if((dtTemp.startsWith('"%$')== false || dtTemp.substring(dtTemp.length-3) !='$%"')&& (dtTemp.replace(/"/g,'').trim()!='')){ 
-                  var temp = r.replace(dtTemp.replace(/"/g,''),'%$'+dtTemp.replace(/"/g,'')+':nokey$%')  
+                  var temp = r.replace(dtTemp.replace(/"/g,''),'%$'+dtTemp.replace(/"/g,'')+':'+dtTemp.replace(/"/g,'')+'$%')  
                   arrLg.push(dtTemp.replace(/"/g,''));
                   afterContent = afterContent.replace(r,temp); 
                } 
@@ -186,10 +186,14 @@ function convertGrid(){
             && b.replace(/\s+/g,'').trim().charAt(0) =='{' && b.replace(/\s+/g,'').trim() !=""){
                var temp1 = b.replace(/\s+/g,'').trim();
                var temp2 = b; 
+               console.log(temp1.slice(temp1.length-2,temp1.length));
                 if(temp1.indexOf('dataNX') !=-1 && temp1.indexOf('type:"num"') != -1){
                   if(temp1.charAt(temp1.length-1)=='}'){
                      temp2= temp1.slice(0,temp1.length-1) +(',align:"right"'+ temp1.slice(temp1.length-1)); 
-                  }else if([",","]","}"].some(el => temp1.charAt(temp1.length-1).includes(el))!=true){
+                  }else if(temp1.slice(temp1.length-2,temp1.length)=='],'){
+                     temp2= temp1.slice(0,temp1.length-3) +(',align:"right"'+ temp1.slice(temp1.length-3)); 
+                  }
+                  else if([",","]","}"].some(el => temp1.charAt(temp1.length-1).includes(el))!=true){
                      temp2 = temp1 + ',align:"right"';
                   }
                   else{
@@ -201,7 +205,10 @@ function convertGrid(){
                 else{
                   if(temp1.charAt(temp1.length-1)=='}'){
                      temp2= temp1.slice(0,temp1.length-1) +(',align:"left"'+ temp1.slice(temp1.length-1)); 
-                  }else if([",","]","}"].some(el => temp1.charAt(temp1.length-1).includes(el))!=true){
+                  }else if(temp1.slice(temp1.length-2,temp1.length)=='],'){ 
+                     temp2= temp1.slice(0,temp1.length-3) +(',align:"left"'+ temp1.slice(temp1.length-3)); 
+                  }
+                  else if([",","]","}"].some(el => temp1.charAt(temp1.length-1).includes(el))!=true){
                      temp2 = temp1 + ',align:"left"';
                   }
                   else{
@@ -217,6 +224,7 @@ function convertGrid(){
          }
       }
       afterContent = afterContent.replaceAll('"icon-search"', '"search-icon"');
+      afterContent = afterContent.replaceAll('mask:"yyyy-MM-ddhh:mm"', 'mask:"yyyy-MM-dd hh:mm"');
       document.getElementById("reSult").value = afterContent;  
    } 
    arrLg = [];  
