@@ -16,23 +16,23 @@ function addGridToolbar() {
     u('.grid-pnl').each(function (nGrid, iGrid) {
         const captionPnlList = u(u(nGrid.parentNode).find('.caption-pnl'));
         let captionPnl = null;
-        if (captionPnlList.nodes.length == 1) {          
+        if (captionPnlList.nodes.length == 1) {
             captionPnl = captionPnlList.nodes[0];
         } else if (captionPnlList.nodes.length != 0 && captionPnlList.nodes.length > iGrid) {
             captionPnl = captionPnlList.nodes[iGrid];
         }
 
-        if(captionPnl != null){
-            if(u('h2',captionPnl).nodes.length > 0){
-                u(u('h2',captionPnl).first()).after('<span class="fr" id="' + nGrid.id + 'Toolbar"></span>');
-            }else{
+        if (captionPnl != null) {
+            if (u('h2', captionPnl).nodes.length > 0) {
+                u(u('h2', captionPnl).first()).after('<span class="fr" id="' + nGrid.id + 'Toolbar"></span>');
+            } else {
                 u(captionPnlList).prepend('<span class="fr" id="' + nGrid.id + 'Toolbar"></span>');
-            }  
+            }
         }
     })
 }
 
-function convertFielddName(){
+function convertFielddName() {
     //Convert buttons Name
     u('#tempArea button').each(function (button, i) {
         if (button.childNodes.length && !isValidName(button.innerText)) {
@@ -56,9 +56,9 @@ function convertFielddName(){
 }
 
 function isValidName(name) {
-    
+
     const skipList = [':']
-    if(skipList.indexOf(name)>=0){
+    if (skipList.indexOf(name) >= 0) {
         return true;
     }
 
@@ -96,7 +96,7 @@ function convertButtonInFooter() {
     u(buttons).remove();
 }
 
-function getHTMLWithFormat() {
+function getHtmlWithFormat() {
     const option = {
         "indent_size": "4",
         "indent_char": " ",
@@ -116,7 +116,12 @@ function getHTMLWithFormat() {
         "e4x": true,
         "indent_empty_lines": true
     };
-    let htmlFormat = html_beautify(u('#tempArea').html(), option);
+
+    const html = u('#tempArea').html();
+    let htmlFormat = '';
+   
+    htmlFormat = htmlFormatLv1(html);
+    htmlFormat = html_beautify(htmlFormat, option);
     htmlFormat = htmlFormat.replaceAll('hidden=""', 'hidden');
     htmlFormat = htmlFormat.replaceAll('checked=""', 'checked');
     htmlFormat = htmlFormat.replaceAll('readonly=""', 'readonly');
@@ -124,11 +129,58 @@ function getHTMLWithFormat() {
     return htmlFormat;
 }
 
-function verifyHTML(){
+function verifyHTML() {
     let msg = '';
     const reSult = u('#reSult').first().value;
-    if(reSult.indexOf('=""') > -1){
+    if (reSult.indexOf('=""') > -1) {
         msg += 'HTML attributes have empty value (="")\n';
     }
     u('#warningZone').first().innerText = msg;
+}
+
+
+function htmlFormatLv1(html) {
+    html = html.trim();
+    var result = '',
+        tokens = html.split(/</);
+    for (var i = 0, l = tokens.length; i < l; i++) {
+        var parts = tokens[i].split(/>/);
+        var tag = '';
+        nextTag = '';
+
+        //Get current tag
+        if (parts[0].indexOf(' ') >= 0) {
+            tag = parts[0].trim().substr(0, parts[0].indexOf(' '));
+        } else {
+            tag = parts[0].trim();
+        }
+
+        //Get next tag
+        if (i + 1 < l) {
+            var nextParts = tokens[i + 1].split(/>/);
+            if (nextParts[0].indexOf(' ') >= 0) {
+                nextTag = nextParts[0].trim().substr(0, nextParts[0].indexOf(' '));
+            } else {
+                nextTag = nextParts[0].trim();
+            }
+        }
+
+        if (parts.length === 2) {
+            if (i > 0) {
+                result += '<';
+            }
+            result += parts[0].trim() + ">";
+            if ('/' + tag != nextTag) {
+                console.log(parts[0]);
+                result += "\n";
+            }
+
+            if (parts[1].trim() !== '') {
+                result += parts[1].trim();
+            }
+        } else {
+            result += parts[0].trim() + "\n";
+        }
+    }
+    return result;
 }
