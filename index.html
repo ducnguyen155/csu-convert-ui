@@ -61,6 +61,9 @@
         #warningZone {
             color:red;
         }
+        .warning {
+            background-color: darksalmon;
+        }
     </style>
 </head>
 
@@ -75,7 +78,7 @@
         <div class="row">
             <div style="padding: 5px;" class="col-sm-6"> 
                 <div style="padding-bottom: 5px;">
-                <span><button class="btn btn-primary btn-sm" id="btnG" onclick="convertGrid()">Grid</button></span>
+                <span><button class="btn btn-primary btn-sm" id="btnG" onclick="resetField();convertGrid();">Grid</button></span>
                 <span><button class="btn btn-primary btn-sm" id="btnHtml" onclick="convertHTML()">HTML</button></span>
                 <span><button class="btn btn-secondary btn-sm" id="btnWidthBalance" onclick="widthBalance()">Rebalance the percentage</button></span>
                
@@ -104,7 +107,10 @@
             </div>
         </div>
         <div class="row">
-            <span id="warningZone"></span>
+            <div style="padding: 5px;" class="col-sm-6"> </div>
+            <div class="col-sm-6">
+                <span id="warningZone"></span>
+            </div>
         </div>
        
     </div> 
@@ -131,6 +137,7 @@
      }
     function convertHTML() {
         // Get the value from Input 1
+        resetField();
         const content = document.getElementById('content');
         const reSult = document.getElementById('reSult');
         u('#tempArea').append(content.value);
@@ -142,8 +149,15 @@
         convertCommon();
         //---------- end add convert function ---
         reSult.value = getHtmlWithFormat();
-        u('#tempArea').html(null);
         verifyHTML();
+        u('#tempArea').html(null);
+        
+    }
+
+    function resetField(){
+        u('#reSult').first().value = '';
+        u('#reSult').removeClass('warning');
+        u('#warningZone').first().innerText = '';
     }
 
 </script>

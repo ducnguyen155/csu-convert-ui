@@ -133,7 +133,14 @@ function verifyHTML() {
     let msg = '';
     const reSult = u('#reSult').first().value;
     if (reSult.indexOf('=""') > -1) {
-        msg += 'HTML attributes have empty value (="")\n';
+        msg += '- HTML attributes have empty value (="")\n';
+    }
+
+    if(u('.search:not(:has(.search-icon))').nodes.length > 0){
+        msg += '- Class [search] does not follow the rule\n';
+    }
+    if(msg){
+        u('#reSult').addClass('warning');
     }
     u('#warningZone').first().innerText = msg;
 }
