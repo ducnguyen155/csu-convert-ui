@@ -178,7 +178,6 @@ function htmlFormatLv1(html) {
             }
             result += parts[0].trim() + ">";
             if ('/' + tag != nextTag) {
-                console.log(parts[0]);
                 result += "\n";
             }
 

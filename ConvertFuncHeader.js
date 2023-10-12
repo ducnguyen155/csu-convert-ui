@@ -47,7 +47,7 @@ function convertCommonSearchArea() {
 
 function convertColInTable(thList) {
     for (let i = 0; i < thList.nodes.length; i++) {
-        if (thList.nodes[i].tagName == 'TH' && thList.nodes[i + 1].tagName == 'TD') {
+        if (thList.nodes[i].tagName == 'TH' && (i + 1 < thList.nodes.length) && thList.nodes[i + 1].tagName == 'TD') {
             const th = thList.nodes[i];
             const td = thList.nodes[i + 1];
             //Convert and move th, td to div search-inputbox
