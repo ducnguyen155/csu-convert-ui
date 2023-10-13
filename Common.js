@@ -126,6 +126,7 @@ function getHtmlWithFormat() {
     htmlFormat = htmlFormat.replaceAll('checked=""', 'checked');
     htmlFormat = htmlFormat.replaceAll('readonly=""', 'readonly');
     htmlFormat = htmlFormat.replaceAll('disabled=""', 'disabled');
+    htmlFormat = htmlFormat.replaceAll('selected=""', 'selected');
     return htmlFormat;
 }
 
