@@ -126,6 +126,7 @@ function getHtmlWithFormat() {
     htmlFormat = htmlFormat.replaceAll('checked=""', 'checked');
     htmlFormat = htmlFormat.replaceAll('readonly=""', 'readonly');
     htmlFormat = htmlFormat.replaceAll('disabled=""', 'disabled');
+    htmlFormat = htmlFormat.replaceAll('selected=""', 'selected');
     return htmlFormat;
 }
 
@@ -136,7 +137,7 @@ function verifyHTML() {
         msg += '- HTML attributes have empty value (="")\n';
     }
 
-    if(u('.search:not(:has(.search-icon))').nodes.length > 0){
+    if(u('.search-inputbox.search:not(:has(.search-icon))').nodes.length > 0){
         msg += '- Class [search] does not follow the rule\n';
     }
     if(msg){
