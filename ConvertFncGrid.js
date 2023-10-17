@@ -124,9 +124,10 @@ function convertGrid(){
             if(Number.isFinite(parseInt(beforContent.charAt(j))) || beforContent.charAt(j)=='.'){  
                p += beforContent.charAt(j)
             } 
-         } 
+         }  
          var k = (parseFloat(p)*maxWidth/gridSumPercent).toString();  
          k= Number(k).toFixed(1);
+         if(k==0)continue;  
          afterContent = afterContent.replace(p+'%',k+'px');  
       } 
       p=''; 
