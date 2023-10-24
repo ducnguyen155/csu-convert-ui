@@ -228,6 +228,7 @@ function convertGrid(){
          }
       }
       afterContent = afterContent.replaceAll('"icon-search"', '"search-icon"');
+      afterContent = afterContent.replaceAll('width:"0%"', 'width:"0.0px"');
       afterContent = afterContent.replaceAll('mask:"yyyy-MM-ddhh:mm"', 'mask:"yyyy-MM-dd hh:mm"');
       document.getElementById("reSult").value = afterContent;  
    } 
