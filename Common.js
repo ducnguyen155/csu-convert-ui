@@ -57,7 +57,7 @@ function convertFielddName() {
 
 function isValidName(name) {
 
-    const skipList = [':']
+    const skipList = [':', '~']
     if (skipList.indexOf(name) >= 0) {
         return true;
     }
