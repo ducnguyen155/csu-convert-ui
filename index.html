@@ -76,21 +76,21 @@
 
     <div class="container-fluid" style="padding: 20px;">
         <div class="row">
-            <div style="padding: 5px;" class="col-sm-6"> 
+            <div style="padding: 5px;" class="col-sm-6">  
                 <div style="padding-bottom: 5px;">
                 <span><button class="btn btn-primary btn-sm" id="btnG" onclick="resetField();convertGrid();">Grid</button></span>
-                <span><button class="btn btn-primary btn-sm" id="btnHtml" onclick="convertHTML()">HTML</button></span>
-                <span><button class="btn btn-secondary btn-sm" id="btnWidthBalance" onclick="widthBalance()">Rebalance the percentage</button></span>
-               
+                <span><button class="btn btn-secondary btn-sm" id="btnWidthBalance" onclick="widthBalance()">Rebalance</button></span>
                   <span>
                     <select onchange="showInput(this)" id="gridWidth">
                         <option selected value="default">1280</option>
                         <option value="bodyWidth">body Width</option>
                         <option value="other">Other</option> 
                     </select>
-                </span>
+                </span>  
                 <span class="other"> 
                 </span>  
+                <span><button class="btn btn-primary btn-sm" id="btnHtml" onclick="convertHTML()">HTML</button></span> 
+                <span><button type="button" class="btn btn-primary btn-sm" onclick="convertMainTable()">Main-Table</button> </span> 
                 <span><button onclick="logClear()" style="float: right;" class="btn btn-primary btn-sm"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
                     <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
@@ -104,6 +104,7 @@
                     <span><button class="btn btn-primary btn-sm" id="btnC"> copy</button></span>
                 </div>
                 <textarea style="height: 700px; " class="col-md-12" class="c" name="" id="reSult"> </textarea>
+                <textarea style="height: 700px; " class="reSult2" id="reSult2" hidden> </textarea>
             </div>
         </div>
         <div class="row">
@@ -135,8 +136,8 @@
                 }  
             }
      }
-    function convertHTML() {
-        // Get the value from Input 1
+    function convertHTML() {  
+        // Get the value from Input 1   
         resetField();
         const content = document.getElementById('content');
         const reSult = document.getElementById('reSult');
