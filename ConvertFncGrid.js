@@ -206,7 +206,7 @@ function convertGrid(){
                }else if(temp1.indexOf('type:"button"') != -1 || temp1.indexOf('type:"checkbox"') !=-1 || temp1.indexOf('type:"select"') !=-1){
                   temp2 = temp1;
                }
-                else{
+                else{ 
                   if(temp1.charAt(temp1.length-1)=='}'){
                      temp2= temp1.slice(0,temp1.length-1) +(',align:"left"'+ temp1.slice(temp1.length-1)); 
                   }else if(temp1.slice(temp1.length-2,temp1.length)=='],'){ 
@@ -411,3 +411,88 @@ function GetSumPercent(){
    }
 }
 
+function convertMainTable(){
+   document.querySelector('.reSult2').innerHTML="";
+   inputData = document.getElementById('content').value;
+   inputData = inputData.replace(/icon-search/g, 'search-icon');
+   inputData = inputData.replace(/doaction-point/g, 'doaction on'); 
+   $(".reSult2").append(inputData);
+   var tr = document.getElementsByTagName("tr");
+   if(tr){
+       for(var i =0 ; i < tr.length; i++){
+           var cells = tr[i].cells;
+           if(cells){
+               for(var j =0; j < cells.length; j++){
+                   var div = document.createElement('div');
+                   var span = document.createElement('span');
+                   div.setAttribute("class","wide-td");
+                   span.setAttribute("class","main-inputbox");
+                   if(cells[j].nodeName=="TD"){
+                       var isSearchIcon = false;
+                       var isDatepicker = false;
+                       var isMandatory = false;
+                       var isRadio = false;
+                       var isCheckBox = false;
+                       var isSelect = false;
+                       if(cells[j].children){
+                           for(var k = 0; k < cells[j].children.length; k++){
+                               for(var t = 0; t < cells[j].children[k].attributes.length; t++){ 
+                                   if (cells[j].children[k].attributes[t].name == "class" && cells[j].children[k].attributes[t].textContent.includes("selection-grp")) {
+                                       if(cells[j].children[k].outerHTML.indexOf('type="radio"')!=-1){
+                                           cells[j].children[k].setAttribute("class", cells[j].children[k].attributes[t].textContent + " radio-wrap")
+                                           span.setAttribute("class", span.classList + " radio");
+                                       }
+                                       if(cells[j].children[k].outerHTML.indexOf('type="checkbox"')!=-1){
+                                           cells[j].children[k].setAttribute("class", cells[j].children[k].attributes[t].textContent + " check-wrap")
+                                           span.setAttribute("class", span.classList + " checkbox");
+                                       }
+                                      for(var g = 0; g < cells[j].children[k].children.length; g++){
+                                       var itg = document.createElement('i');
+                                       if(cells[j].children[k].children[g].nodeName=="LABEL"){
+                                           cells[j].children[k].children[g].insertBefore(itg, cells[j].children[k].children[g].childNodes[0]);  
+                                           }
+                                        } 
+                                   }  
+                                   if(cells[j].children[k].outerHTML.indexOf("<select")!=-1){  
+                                       isSelect = true;
+                                   }
+                                   if (cells[j].children[k].attributes[t].name == "class" && cells[j].children[k].attributes[t].textContent == "search-icon") {
+                                       isSearchIcon = true;
+                                   }
+                                   if (cells[j].children[k].attributes[t].name == "data-nx" && cells[j].children[k].attributes[t].textContent.indexOf("type:'date'") != -1) {
+                                       isDatepicker = true;
+                                   }
+                                   if (cells[j].children[k].attributes[t].name == "data-nx" && cells[j].children[k].attributes[t].textContent.indexOf("required:true") != -1) {
+                                       isMandatory = true;
+                                   }
+                                   if (cells[j].children[k].attributes[t].name == "type" && cells[j].children[k].attributes[t].textContent == "radio") {
+                                       isRadio = true;
+                                   }
+                                   if (cells[j].children[k].attributes[t].name == "type" && cells[j].children[k].attributes[t].textContent == "checkbox") {
+                                       isCheckBox = true;
+                                   }
+                               } 
+                           }
+                       }
+                       if (isSearchIcon) span.setAttribute("class", span.classList + " search");
+                       if (isDatepicker) span.setAttribute("class", span.classList + " datepicker");
+                       if (isMandatory) span.setAttribute("class", span.classList + " mandatory");
+                       if (isRadio) span.setAttribute("class", span.classList + " radio");
+                       if (isCheckBox) span.setAttribute("class", span.classList + " checkbox"); 
+                       if (isSelect)  span.setAttribute("class", span.classList + " select"); 
+                       span.innerHTML=cells[j].innerHTML;
+                       div.appendChild(span);
+                       cells[j].innerHTML = "";
+                       cells[j].append(div);
+                   }
+               }
+           }
+       }
+   }
+   var strResult = document.querySelector('.reSult2').innerHTML;
+   strResult = strResult.replace(/checked=""/g, 'checked');
+   strResult = strResult.replace(/readonly=""/g, 'readonly');
+   strResult = strResult.replace(/disabled=""/g, 'disabled');
+   strResult = strResult.replace(/hidden=""/g, 'hidden');
+   document.getElementById('reSult').value = strResult; 
+}
