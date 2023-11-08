@@ -73,7 +73,7 @@ function convertSearchButton() {
         //Add common button 1. Searbox Box Area Expand Button
         u(search).append('<button  type="button"  class="search-showhide-icon"  id="logDetailSearch" hidden></button>');
 
-        //4. Move button
+        //5. Move button
         var searchButtons = u('.buttonset.fr', search);
         u(search).append(searchButtons);
         searchButtons.remove();
@@ -82,11 +82,13 @@ function convertSearchButton() {
         if (u('.buttonset.fr', search) == null) {
             u(search).append('<span class="buttonset fr">');
         }
-
-        //3. Search Filter Reset Button
+        
+        // 4. Search Filter Reset Button
         u(u('.buttonset.fr', search).last()).prepend('<button type="button" class="dorefresh" id="btnC"></button>');
-        // 2. Search Filter Save Button 
+        // 3. Search Filter Save Button 
         u(u('.buttonset.fr', search).last()).prepend('<button type="button" class="dofilter-save" id="btnSave"></button>');
+        // 2. Search Filter Modify Button 
+        u(u('.buttonset.fr', search).last()).prepend('<button type="button" class="dofilter-case" id="logFilterCase"></button>');
 
         //Remove span empty
         u(u('.buttonset.fr', search)).filter(function (node, i) {
