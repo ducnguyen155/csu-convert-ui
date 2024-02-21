@@ -79,6 +79,7 @@ function parseQuery() {
         listCol.forEach(col => {
             if (excel.TableName == '' && col.ColAlias == excel.ColName) {
                 excel.TableName = col.TableName;
+                excel.ColName = col.ColName;
             }
         });
     });
