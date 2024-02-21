@@ -75,10 +75,10 @@ function parseQuery() {
     });
 
     //Mapping for Excel Info
-    exelInfo.forEach(info => {
+    exelInfo.forEach(excel => {
         listCol.forEach(col => {
-            if (info.TableName == '' && col.ColName == info.ColName) {
-                info.TableName = col.TableName;
+            if (excel.TableName == '' && col.ColAlias == excel.ColName) {
+                excel.TableName = col.TableName;
             }
         });
     });
@@ -105,6 +105,7 @@ function getColumnInfo(line) {
     line = line.replaceAll('FROM', '');
     let listCol = [];
     let cols = line.split(',');
+    let colTemp = '';
     cols.forEach(col => {
         if (col == ' ') return;
         let temp = col.trim().split('.');
@@ -112,11 +113,21 @@ function getColumnInfo(line) {
         //Has alias table name
         if (temp.length > 1) {
             colInfo.TableName = temp[0];
-            colInfo.ColName = temp[1];
+            colTemp = temp[1];
         } else {
             colInfo.TableName = '';
-            colInfo.ColName = temp[0];
+            colTemp = temp[0];
         }
+
+        let colArr = colTemp.split(' AS ');
+        if(colArr.length > 1){
+            colInfo.ColName = colArr[0];
+            colInfo.ColAlias = colArr[1];
+        }else{
+            colInfo.ColName = colArr[0];
+            colInfo.ColAlias = colArr[0];
+        }
+
 
         listCol.push(colInfo);
     });
