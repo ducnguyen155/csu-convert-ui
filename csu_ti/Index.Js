@@ -28,40 +28,38 @@ function parseQuery() {
 
     var listCol = [];
     var listTbl = [];
-    var select = 0,
-        from = 0;
-    var where = 0;
+    var canSelect = 0,
+        whereFlag = 0;
 
     lines.forEach(line => {
 
         //Skip
         if (line.indexOf('<') > -1) return;
 
-        //
-
         //SELECT flag
         if (line.toUpperCase().indexOf('SELECT') > -1) {
-            select++;
-            where = 0;
+            canSelect++;
         }
 
         //FROM flag
         if (line.toUpperCase().indexOf('FROM') > -1) {
-            from++;
-            where = 0;
+            canSelect--;
         }
 
         //WHERE flag
         if (line.toUpperCase().indexOf('WHERE ') > -1) {
-            where = 1;
+            whereFlag = 1;
         }
-        if (where == 1) return;
 
-        if (select > from) { //Read column info
+        if (canSelect > 0) {
+            //Get column
             listCol = listCol.concat(getColumnInfo(line));
-        } else { //Read table info
+            whereFlag = 0;
+        } else if (whereFlag == 0) {
+            //Get Table
             listTbl = listTbl.concat(getTableInfo(line));
         }
+
 
     });
 
@@ -84,18 +82,19 @@ function parseQuery() {
         });
     });
 
-    var tbody = '<tr><th>No.</th><th>Object ID</th><th>Sub Object ID</th><th>Display Name</th><th>Table Info</th><th>Field Info</th></tr>';
+    var tbody = '<tr><th>No.</th><th>Object ID</th><th>Sub Object ID</th><th>Display Name</th><th>Table Info</th><th>Field Info</th><th>Field Alias</th></tr>';
 
-    exelInfo.forEach((info, idx) => {
+    exelInfo.forEach((excel, idx) => {
         let tr = '<tr>';
-        tr += '<td>' + idx + '</td>';
-        tr += '<td>' + info.ObjectId + '</td>';
-        tr += '<td>' + info.SubObjectId + '</td>';
-        tr += '<td>' + info.DisplayName + '</td>';
-        tr += '<td>' + (info.TableName ? info.TableName : '') + '</td>';
-        tr += '<td>' + info.ColName + '</td>';
+        tr += '<td>' + (idx + 1) + '</td>';
+        tr += '<td>' + excel.ObjectId + '</td>';
+        tr += '<td>' + excel.SubObjectId + '</td>';
+        tr += '<td>' + excel.DisplayName + '</td>';
+        tr += '<td>' + (excel.TableName ? excel.TableName : '') + '</td>';
+        tr += '<td>' + excel.ColName + '</td>';
+        tr += '<td>' + excel.ColAlias + '</td>';
         tr += '</tr>';
-        tbody +=  tr;
+        tbody += tr;
     });
     reSult.innerHTML = tbody;
 }
@@ -104,8 +103,13 @@ function getColumnInfo(line) {
     line = line.replaceAll('SELECT ', '');
     line = line.replaceAll('FROM (', '');
     line = line.replaceAll('FROM', '');
-    let listCol = [];
+
+    line = line.replaceAll('TO_CHAR(', '');
+
+    line = line.trim();
     let cols = line.split(',');
+
+    let listCol = [];
     let colTemp = '';
     cols.forEach(col => {
         if (col == ' ') return;
@@ -121,10 +125,10 @@ function getColumnInfo(line) {
         }
 
         let colArr = colTemp.split(' AS ');
-        if(colArr.length > 1){
+        if (colArr.length > 1) {
             colInfo.ColName = colArr[0];
             colInfo.ColAlias = colArr[1];
-        }else{
+        } else {
             colInfo.ColName = colArr[0];
             colInfo.ColAlias = colArr[0];
         }
@@ -183,18 +187,19 @@ async function parseExcel(file) {
             var ws = workbook.Sheets[sheetName];
 
             var variable = XLSX.utils.decode_range(ws["!ref"]);
-            for (var R = 4; R < variable.e.r; ++R) {
+            for (var R = 4; R <= variable.e.r; R++) {
 
-                let info = {};
-                info.ObjectId = ws[ec(R, colObjectId)].v;
-                info.SubObjectId = ws[ec(R, colSubObjectId)].v;
-                info.DisplayName = ws[ec(R, colDisplayName)].v;
-                info.TableName = ws[ec(R, colTableName)].v;
-                info.ColName = ws[ec(R, colColName)].v;
-                if(!info.ColName){
-                    info.ColName = info.ObjectId.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
+                let excel = {};
+                excel.ObjectId = ws[ec(R, colObjectId)].v;
+                excel.SubObjectId = ws[ec(R, colSubObjectId)].v;
+                excel.DisplayName = ws[ec(R, colDisplayName)].v;
+                excel.TableName = ws[ec(R, colTableName)].v;
+                excel.ColName = ws[ec(R, colColName)].v;
+                if (!excel.ColName) {
+                    excel.ColName = excel.ObjectId.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
                 }
-                exelInfo.push(info);
+                excel.ColAlias = excel.ColName;
+                exelInfo.push(excel);
             }
             parseQuery();
         })
