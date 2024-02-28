@@ -52,10 +52,10 @@ function convertGrid(){
             break;
             cntTemp += beforContent.charAt(i); 
       } 
-      afterContent = afterContent.replace('totalCntString' + cntTemp,'totalCntString: "Total %d result(s)"'); 
+      afterContent = afterContent.replace('totalCntString' + cntTemp,'totalCntString: "%d rows"'); 
       cntTemp = '';
    }else{ 
-      afterContent = afterContent.replace(gridHeader,'totalCntString: "Total %d result(s)", \n' +space + gridHeader); 
+      afterContent = afterContent.replace(gridHeader,'totalCntString: "%d rows", \n' +space + gridHeader); 
    }
    var toolbarId = '#';
    var q = 0;
