@@ -104,7 +104,11 @@ function getColumnInfo(line) {
     line = line.replaceAll('FROM (', '');
     line = line.replaceAll('FROM', '');
 
-    line = line.replaceAll('TO_CHAR(', '');
+    if(line.indexOf('TO_CHAR') > -1){
+        line = line.replaceAll('TO_CHAR(', '');
+        line = line.replaceAll(", 'YYYYMMDD')", '');
+    }
+    
 
     line = line.trim();
     let cols = line.split(',');
@@ -170,8 +174,8 @@ async function parseExcel(file) {
     var colObjectId = 2,
         colSubObjectId = 3,
         colDisplayName = 4,
-        colTableName = 9,
-        colColName = 10;
+        colTableName = 5,
+        colColName = 6;
 
     exelInfo = [];
 
@@ -187,14 +191,14 @@ async function parseExcel(file) {
             var ws = workbook.Sheets[sheetName];
 
             var variable = XLSX.utils.decode_range(ws["!ref"]);
-            for (var R = 4; R <= variable.e.r; R++) {
+            for (var R = 4; R < variable.e.r; R++) {
 
                 let excel = {};
                 excel.ObjectId = ws[ec(R, colObjectId)].v;
                 excel.SubObjectId = ws[ec(R, colSubObjectId)].v;
                 excel.DisplayName = ws[ec(R, colDisplayName)].v;
-                excel.TableName = ws[ec(R, colTableName)].v;
-                excel.ColName = ws[ec(R, colColName)].v;
+                excel.TableName = ws[ec(R, colTableName)] ? ws[ec(R, colTableName)].v : '';
+                excel.ColName = ws[ec(R, colColName)] ? ws[ec(R, colColName)].v : '';
                 if (!excel.ColName) {
                     excel.ColName = excel.ObjectId.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
                 }
