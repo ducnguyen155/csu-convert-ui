@@ -191,7 +191,7 @@ async function parseExcel(file) {
             var ws = workbook.Sheets[sheetName];
 
             var variable = XLSX.utils.decode_range(ws["!ref"]);
-            for (var R = 4; R < variable.e.r; R++) {
+            for (var R = 4; R <= variable.e.r; R++) {
 
                 let excel = {};
                 excel.ObjectId = ws[ec(R, colObjectId)].v;
