@@ -1,6 +1,6 @@
 var exelInfo = [];
-var listCol = [];
-var listTbl = [];
+var listFunction1P = ['REPLACE', 'TO_CHAR', 'SUM', 'MAX', 'MIN', 'COUNT', 'NVL'];
+var listFunction2P = ['DECODE'];
 
 function showInput(e) {
     if (e.value == 'other') {
@@ -16,138 +16,166 @@ function getMapping() {
     // Get the value from Input 1   
     const file = document.getElementById('fileMapping');
     resetField();
-    parseExcel(file.files[0]);
+    parseExcel(file.files[0], parseQueryObj);
 }
 
-function parseQuery() {
+function parseQueryObj() {
     const content = document.getElementById('content');
-    const reSult = document.getElementById('mappingInfo');
     let strQuery = content.value.toUpperCase();
 
     strQuery = strQuery.replaceAll('||', '\+');
     strQuery = strQuery.replaceAll('(+)', '');
     strQuery = strQuery.replaceAll('NULLS LAST', '');
-    strQuery = strQuery.replaceAll(' +.99999 ', ' ');
-    strQuery = strQuery.replaceAll(' +.0 ', ' '); 
-    
+    strQuery = strQuery.replaceAll('&LT;', '<'); // Change &LT; to <
+    strQuery = strQuery.replaceAll('&GT;', '>'); // Change &GT; to >
+    strQuery = strQuery.replaceAll('<>', '!='); // Change &GT; to > 
 
-    while (strQuery.indexOf('  ') > -1) {
-        strQuery = strQuery.replaceAll('  ', ' ');
-    }
+    strQuery = strQuery.replace(/(?:\+|\-)\s*?(?:\d+\.\d+|\.\d+)/g, ""); //Remove + .99999 and .0
+    strQuery = strQuery.replace(/<FOREACH[^>]*>/g, '('); // <foreach> to (
+    strQuery = strQuery.replace(/<\/FOREACH[^>]*>/g, ')'); // </foreach> to )
+    strQuery = strQuery.replace(/<[^>][^\n]*>/g, ''); // Remove tag xml
+    strQuery = strQuery.replace(/#(\{[^}]+\})/g, "'$1'"); // Change params #{p} to '{p}'
+    strQuery = strQuery.replace(/--.*/g, ''); // Remove comment --
 
-    listCol = [];
-    listTbl = [];
-
-
-    var sqlParser = window.sqlParser;
-    var ast = sqlParser.parse(strQuery);
-    var sql = sqlParser.stringify(ast);
-    console.log(ast);
-
-
-    let result = '';
-    listTbl.forEach(tb => {
-        listCol.forEach(col => {
-            if (col.TableName == tb.Alias) {
-                col.TableName = tb.TableName;
-            }
-        });
-    });
-
-    // Mapping for Excel Info
-    exelInfo.forEach(excel => {
-        if (excel.SubObjectId) {
-            excel = findColInfo(ast, excel);
+    try {
+        if (strQuery.trim().length > 0) {
+            var sqlParser = window.sqlParser;
+            var ast = sqlParser.parse(strQuery);
+            //var sql = sqlParser.stringify(ast);
+            //console.log(ast);
+            // Mapping for Excel Info
+            exelInfo.forEach(excel => {
+                if (excel.SubObjectId) {
+                    excel = findColInfo(ast, excel);
+                }
+            });
+            //findColInfo(ast, exelInfo[24]);    
         }
-    });
+    } catch (error) {
+        u('#warningZone').first().innerText = error;
+        parseQueryString();
+    }
+    showExcelInfo();
+}
 
-    //findColInfo(ast, exelInfo[24]);
 
-    var tbody = '<tr><th>No.</th><th>Object ID</th><th>Sub Object ID</th><th>Display Name</th><th>Table Info</th><th>Field Info</th><th>Field Alias</th></tr>';
+function showExcelInfo() {
+    const reSult = document.getElementById('mappingInfo');
+    var tbody = '';
 
     exelInfo.forEach((excel, idx) => {
-        let tr = '<tr>';
-        tr += '<td>' + (idx + 1) + '</td>';
+        let tr = (idx % 2 == 0 ? '<tr>' : '<tr>');
+        tr += '<td class="text-center">' + (idx + 1) + '</td>';
         tr += '<td>' + excel.ObjectId + '</td>';
         tr += '<td>' + excel.SubObjectId + '</td>';
         tr += '<td>' + excel.DisplayName + '</td>';
+        tr += '<td class="text-center"><button class="btn btn-outline-info btn-sm" onclick="copyFn(' + idx + ')">C</button></td>';
         tr += '<td>' + (excel.TableName ? excel.TableName : '') + '</td>';
-        tr += '<td>' + excel.ColName + '</td>';
+        tr += (excel.ColName != excel.ColAlias ? '<td class="warning">' : '<td>') + excel.ColName + '</td>';
         tr += '<td>' + excel.ColAlias + '</td>';
         tr += '</tr>';
         tbody += tr;
     });
     reSult.innerHTML = tbody;
-
 }
 
-function findColInfo(ast, excel, isSubSelect) {
+function copyFn(idx) {
+    let excel = exelInfo[idx];
+    var copyText = excel.TableName + '\t' + excel.ColAlias;
+    navigator.clipboard.writeText(copyText);
+}
+
+function findColInfo(ast, excel, subQueryName) {
+
+    if (!ast.value) return;
 
     //Check select list
     ast.value.selectItems.value.forEach((val) => {
+        //console.log(val);
         let colObj;
-        if (val.alias == 'CARRIER' && excel.ObjectId.toUpperCase() == "CARRIER")
-            console.log(val);
+        // if (val.alias == 'NVL' && excel.ObjectId.toUpperCase() == "NVL")
+        //     console.log(val);
 
         if (val.type == 'Identifier') {
             colObj = parseColumn(val.value);
         } else if (val.type == 'FunctionCall') {
-            if (val.name == 'TO_CHAR') {
-                if (val.params[0].type == 'Identifier') {
-                    colObj = parseColumn(val.params[0].value);
-                } else if (val.params[0].type == 'SubQuery') {
-                    findColInfo(val.params[0], excel, val.alias);
-                }
-            } else if(val.name == 'DECODE'){
-                if (val.params[2].type == 'Identifier') {
-                    colObj = parseColumn(val.params[2].value);
-                } else if (val.params[2].type == 'SubQuery') {
-                    findColInfo(val.params[2], excel, val.alias);
+            let value;
+            if (listFunction1P.indexOf(val.name) >= 0) {
+                value = val.params[0];
+            } else if (listFunction2P.indexOf(val.name) >= 0) {
+                value = val.params[2];
+            }
+
+            if (value) {
+                if (value.type == 'Identifier') {
+                    colObj = parseColumn(value.value);
+                } else if (value.type == 'SubQuery') {
+                    findColInfo(value, excel, val.alias);
+                } else if (value.type == 'FunctionCallParam') {
+                    colObj = parseColumn(value.value.value);
                 }
             }
+
         } else if (val.type == 'SubQuery') {
             if (val.alias == excel.ColAlias || val.alias == excel.ObjectId.toUpperCase()) {
+                if (val.alias == excel.ObjectId.toUpperCase()) {
+                    excel.ColAlias = val.alias;
+                }
                 findColInfo(val, excel, val.alias);
             }
 
         } else if (val.type == 'CaseWhen') {
-            
+
             if (val.alias == excel.ColAlias || val.alias == excel.ObjectId.toUpperCase()) {
+                if (val.alias == excel.ObjectId.toUpperCase()) {
+                    excel.ColAlias = val.alias;
+                }
                 val.whenThenList.value.forEach((t) => {
                     if (t.then.type != 'String') {
-                        findColInfo(t.then, excel, t.then.type == 'SubQuery' ? val.alias : ''); 
+                        findColInfo(t.then, excel, t.then.type == 'SubQuery' ? val.alias : '');
                         return;
                     }
                 });
             }
         }
 
-        if(!colObj) return;
+        if (!colObj) return;
 
-            if(isSubSelect == excel.ColAlias || isSubSelect == excel.ObjectId.toUpperCase()){
-                excel.ColName = colObj.colNm;
-                excel.TableName = colObj.tbNm;
-                return;
-            }else 
-                if(val.alias == excel.ColAlias || val.alias == excel.ObjectId.toUpperCase() || colObj.colNm == excel.ColAlias){
-                excel.ColName = colObj.colNm;
-                excel.TableName = colObj.tbNm;
+        if (subQueryName == excel.ColAlias || subQueryName == excel.ObjectId.toUpperCase()) { //Select Sub query
+
+            excel.ColName = colObj.colNm;
+            excel.TableName = colObj.tbNm;
+            excel.FoundFlag = 1;
+            if (subQueryName == excel.ObjectId.toUpperCase()) {
+                excel.ColAlias = subQueryName;
             }
+            return;
+        } else if (val.alias == excel.ColAlias || val.alias == excel.ObjectId.toUpperCase() || colObj.colNm == excel.ColAlias) {
+            excel.ColName = colObj.colNm;
+            excel.TableName = colObj.tbNm;
+            excel.FoundFlag = 1;
+            if (val.alias == excel.ObjectId.toUpperCase()) {
+                excel.ColAlias = val.alias;
+            }
+        }
 
     });
 
     //Check from list
     ast.value.from.value.forEach((val) => {
         if (val.value.value.type == 'Identifier') {
-            if (val.value.alias.value == excel.TableName) {
+            if (!val.value.alias) {
+                console.log();
+            }
+            if (val.value.alias && val.value.alias.value == excel.TableName) {
+                excel.TableName = val.value.value.value;
+            } else if (excel.FoundFlag == 1 && excel.TableName == '' && ast.value.from.value.length == 1) { // No table aslias and only select from 1 table
                 excel.TableName = val.value.value.value;
             }
         } else if (val.value.value.type == 'SubQuery') {
             findColInfo(val.value.value, excel);
         }
     });
-   
-
 }
 
 
@@ -167,12 +195,11 @@ function parseColumn(val) {
 }
 
 function resetField() {
-    u('#reSult').first().value = '';
-    u('#reSult').removeClass('warning');
+    u('#mappingInfo').first().innerText = '';
     u('#warningZone').first().innerText = '';
 }
 
-async function parseExcel(file) {
+async function parseExcel(file, fParseQuery) {
     var reader = new FileReader();
     var colObjectId = 2,
         colSubObjectId = 3,
@@ -203,12 +230,12 @@ async function parseExcel(file) {
                 excel.TableName = ws[ec(R, colTableName)] ? ws[ec(R, colTableName)].v : '';
                 excel.ColName = ws[ec(R, colColName)] ? ws[ec(R, colColName)].v : '';
                 if (!excel.ColName) {
-                    excel.ColName = excel.ObjectId.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
+                    excel.ColName = excel.ObjectId.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
                 }
                 excel.ColAlias = excel.ColName;
                 exelInfo.push(excel);
             }
-            parseQuery();
+            fParseQuery();
         })
 
     };
@@ -218,75 +245,14 @@ async function parseExcel(file) {
     };
 
     reader.readAsBinaryString(file);
-
-
 }
 
 function ec(r, c) {
     return XLSX.utils.encode_cell({ r: r, c: c });
 }
 
-async function parseExcelOld(file) {
-    var reader = new FileReader();
-    var colObjectId = 2,
-        colSubObjectId = 3,
-        colDisplayName = 4,
-        colTableName = 5,
-        colColName = 6;
-
-    exelInfo = [];
-
-
-    reader.onload = function (e) {
-        var data = e.target.result;
-        var workbook = XLSX.read(data, {
-            type: 'binary'
-        });
-
-        workbook.SheetNames.forEach(function (sheetName) {
-            // Here is your object
-            var ws = workbook.Sheets[sheetName];
-
-            var variable = XLSX.utils.decode_range(ws["!ref"]);
-            for (var R = 4; R <= variable.e.r; R++) {
-
-                let excel = {};
-                excel.ObjectId = ws[ec(R, colObjectId)].v;
-                excel.SubObjectId = ws[ec(R, colSubObjectId)].v;
-                excel.DisplayName = ws[ec(R, colDisplayName)].v;
-                excel.TableName = ws[ec(R, colTableName)] ? ws[ec(R, colTableName)].v : '';
-                excel.ColName = ws[ec(R, colColName)] ? ws[ec(R, colColName)].v : '';
-                if (!excel.ColName) {
-                    excel.ColName = excel.ObjectId.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
-                }
-                excel.ColAlias = excel.ColName;
-                exelInfo.push(excel);
-            }
-            parseQueryOld();
-        })
-
-    };
-
-    reader.onerror = function (ex) {
-        console.log(ex);
-    };
-
-    reader.readAsBinaryString(file);
-
-
-}
-
-function getMappingOld() {
-    // Get the value from Input 1   
-    const file = document.getElementById('fileMapping');
-    resetField();
-    parseExcelOld(file.files[0]);
-}
-
-
-function parseQueryOld() {
+function parseQueryString() {
     const content = document.getElementById('content');
-    const reSult = document.getElementById('mappingInfo');
     let strQuery = content.value.toUpperCase();
     while (strQuery.indexOf('  ') > -1) {
         strQuery = strQuery.replaceAll('  ', ' ');
@@ -330,7 +296,6 @@ function parseQueryOld() {
 
     });
 
-    let result = '';
     listTbl.forEach(tb => {
         listCol.forEach(col => {
             if (col.TableName == tb.Alias) {
@@ -348,22 +313,6 @@ function parseQueryOld() {
             }
         });
     });
-
-    var tbody = '<tr><th>No.</th><th>Object ID</th><th>Sub Object ID</th><th>Display Name</th><th>Table Info</th><th>Field Info</th><th>Field Alias</th></tr>';
-
-    exelInfo.forEach((excel, idx) => {
-        let tr = '<tr>';
-        tr += '<td>' + (idx + 1) + '</td>';
-        tr += '<td>' + excel.ObjectId + '</td>';
-        tr += '<td>' + excel.SubObjectId + '</td>';
-        tr += '<td>' + excel.DisplayName + '</td>';
-        tr += '<td>' + (excel.TableName ? excel.TableName : '') + '</td>';
-        tr += '<td>' + excel.ColName + '</td>';
-        tr += '<td>' + excel.ColAlias + '</td>';
-        tr += '</tr>';
-        tbody += tr;
-    });
-    reSult.innerHTML = tbody;
 }
 
 function getColumnInfo(line) {
@@ -371,11 +320,11 @@ function getColumnInfo(line) {
     line = line.replaceAll('FROM (', '');
     line = line.replaceAll('FROM', '');
 
-    if(line.indexOf('TO_CHAR') > -1){
+    if (line.indexOf('TO_CHAR') > -1) {
         line = line.replaceAll('TO_CHAR(', '');
         line = line.replaceAll(", 'YYYYMMDD')", '');
     }
-    
+
 
     line = line.trim();
     let cols = line.split(',');
