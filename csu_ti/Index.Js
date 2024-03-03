@@ -128,7 +128,7 @@ function findColInfo(ast, excel, subQueryName) {
                  if(identifier){
                      colObj = parseColumn(identifier.then.value);
                  }else if(subQuery){
-                     findColInfo(subQuery.then, excel, subQuery.then.type == 'SubQuery' ? val.alias : '');
+                     findColInfo(subQuery.then, excel, val.alias);
                  }
                  
              }
