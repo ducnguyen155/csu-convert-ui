@@ -2,16 +2,6 @@ var exelInfo = [];
 var listFunction1P = ['REPLACE', 'TO_CHAR', 'SUM', 'MAX', 'MIN', 'COUNT', 'NVL'];
 var listFunction2P = ['DECODE'];
 
-function showInput(e) {
-    if (e.value == 'other') {
-        $(".other").prepend('<input id ="otherVl" type ="number" required placeholder="0000">');
-    } else {
-        if (document.querySelector("#otherVl")) {
-            $("#otherVl").remove();
-        }
-    }
-}
-
 function getMapping() {
     // Get the value from Input 1   
     const file = document.getElementById('fileMapping');
@@ -37,6 +27,7 @@ function parseQueryObj() {
     strQuery = strQuery.replace(/#(\{[^}]+\})/g, "'$1'"); // Change params #{p} to '{p}'
     strQuery = strQuery.replace(/--.*/g, ''); // Remove comment --
 
+
     try {
         if (strQuery.trim().length > 0) {
             var sqlParser = window.sqlParser;
@@ -49,9 +40,10 @@ function parseQueryObj() {
                     excel = findColInfo(ast, excel);
                 }
             });
-            //findColInfo(ast, exelInfo[24]);    
+            //findColInfo(ast, exelInfo[22]);    
         }
     } catch (error) {
+        console.log(error);
         u('#warningZone').first().innerText = error;
         parseQueryString();
     }
@@ -65,11 +57,14 @@ function showExcelInfo() {
 
     exelInfo.forEach((excel, idx) => {
         let tr = (idx % 2 == 0 ? '<tr>' : '<tr>');
-        tr += '<td class="text-center">' + (idx + 1) + '</td>';
+        if(excel.FoundFlag == 2){
+            tr += '<td class="text-center"><button class="btn btn-success btn-sm" onclick="copyFn(' + idx + ')">'+ (idx + 1) +'</button></td>';
+        }else{
+            tr += '<td class="text-center"><button class="btn btn-warning btn-sm" onclick="copyFn(' + idx + ')">'+ (idx + 1) +'</button></td>';
+        }
         tr += '<td>' + excel.ObjectId + '</td>';
         tr += '<td>' + excel.SubObjectId + '</td>';
         tr += '<td>' + excel.DisplayName + '</td>';
-        tr += '<td class="text-center"><button class="btn btn-outline-info btn-sm" onclick="copyFn(' + idx + ')">C</button></td>';
         tr += '<td>' + (excel.TableName ? excel.TableName : '') + '</td>';
         tr += (excel.ColName != excel.ColAlias ? '<td class="warning">' : '<td>') + excel.ColName + '</td>';
         tr += '<td>' + excel.ColAlias + '</td>';
@@ -87,95 +82,112 @@ function copyFn(idx) {
 
 function findColInfo(ast, excel, subQueryName) {
 
-    if (!ast.value) return;
+    if (!ast.value || excel.FoundFlag == 2) return;
+
 
     //Check select list
-    ast.value.selectItems.value.forEach((val) => {
-        //console.log(val);
-        let colObj;
-        // if (val.alias == 'NVL' && excel.ObjectId.toUpperCase() == "NVL")
-        //     console.log(val);
+    for(let i= 0; i< ast.value.selectItems.value.length; i++){
+        if(excel.FoundFlag == 2) return;
+        let val = ast.value.selectItems.value[i];
+         //console.log(val);
+         let colObj;
+         // if (val.alias == 'NVL' && excel.ObjectId.toUpperCase() == "NVL")
+         //     console.log(val);
+ 
+         if (val.type == 'Identifier') {
+             colObj = parseColumn(val.value);
+         } else if (val.type == 'FunctionCall') {
+             let value;
+             if (listFunction1P.indexOf(val.name) >= 0) {
+                 value = val.params[0];
+             } else if (listFunction2P.indexOf(val.name) >= 0) {
+                 value = val.params[2];
+             }
+ 
+             if (value) {
+                 if (value.type == 'Identifier') {
+                     colObj = parseColumn(value.value);
+                 } else if (value.type == 'SubQuery') {
+                     findColInfo(value, excel, val.alias);
+                 } else if (value.type == 'FunctionCallParam') {
+                     colObj = parseColumn(value.value.value);
+                 }
+             }
+ 
+         } else if (val.type == 'SubQuery') {
+             if (compareColumn(val.alias, excel)) {
+                 findColInfo(val, excel, val.alias);
+             }
+ 
+         } else if (val.type == 'CaseWhen') {
+ 
+             if (compareColumn(val.alias, excel)) {
+                 let identifier =  val.whenThenList.value.find((e)=>{ return e.then.type == 'Identifier' });
+                 let subQuery =  val.whenThenList.value.find((e)=>{ return e.then.type == 'SubQuery' });
+     
+                 if(identifier){
+                     colObj = parseColumn(identifier.then.value);
+                 }else if(subQuery){
+                     findColInfo(subQuery.then, excel, subQuery.then.type == 'SubQuery' ? val.alias : '');
+                 }
+                 
+             }
+         }
+ 
+         if (!colObj) continue;
+ 
+         if (compareColumn(subQueryName, excel)) { //Select Sub query
+             excel.ColName = colObj.colNm;
+             excel.TableName = colObj.tbNm;
+             excel.FoundFlag = 1;
+             break;
+         } else if (compareColumn(val.alias, excel) || colObj.colNm == excel.ColAlias) {
+             excel.ColName = colObj.colNm;
+             excel.TableName = colObj.tbNm;
+             excel.FoundFlag = 1;
+             break;
+         }
+    }
 
-        if (val.type == 'Identifier') {
-            colObj = parseColumn(val.value);
-        } else if (val.type == 'FunctionCall') {
-            let value;
-            if (listFunction1P.indexOf(val.name) >= 0) {
-                value = val.params[0];
-            } else if (listFunction2P.indexOf(val.name) >= 0) {
-                value = val.params[2];
-            }
 
-            if (value) {
-                if (value.type == 'Identifier') {
-                    colObj = parseColumn(value.value);
-                } else if (value.type == 'SubQuery') {
-                    findColInfo(value, excel, val.alias);
-                } else if (value.type == 'FunctionCallParam') {
-                    colObj = parseColumn(value.value.value);
-                }
-            }
+    if (excel.FoundFlag == 2) return;
+    // Check from list
 
-        } else if (val.type == 'SubQuery') {
-            if (val.alias == excel.ColAlias || val.alias == excel.ObjectId.toUpperCase()) {
-                if (val.alias == excel.ObjectId.toUpperCase()) {
-                    excel.ColAlias = val.alias;
-                }
-                findColInfo(val, excel, val.alias);
-            }
-
-        } else if (val.type == 'CaseWhen') {
-
-            if (val.alias == excel.ColAlias || val.alias == excel.ObjectId.toUpperCase()) {
-                if (val.alias == excel.ObjectId.toUpperCase()) {
-                    excel.ColAlias = val.alias;
-                }
-                val.whenThenList.value.forEach((t) => {
-                    if (t.then.type != 'String') {
-                        findColInfo(t.then, excel, t.then.type == 'SubQuery' ? val.alias : '');
-                        return;
-                    }
-                });
-            }
-        }
-
-        if (!colObj) return;
-
-        if (subQueryName == excel.ColAlias || subQueryName == excel.ObjectId.toUpperCase()) { //Select Sub query
-
-            excel.ColName = colObj.colNm;
-            excel.TableName = colObj.tbNm;
-            excel.FoundFlag = 1;
-            if (subQueryName == excel.ObjectId.toUpperCase()) {
-                excel.ColAlias = subQueryName;
-            }
-            return;
-        } else if (val.alias == excel.ColAlias || val.alias == excel.ObjectId.toUpperCase() || colObj.colNm == excel.ColAlias) {
-            excel.ColName = colObj.colNm;
-            excel.TableName = colObj.tbNm;
-            excel.FoundFlag = 1;
-            if (val.alias == excel.ObjectId.toUpperCase()) {
-                excel.ColAlias = val.alias;
-            }
-        }
-
-    });
-
-    //Check from list
-    ast.value.from.value.forEach((val) => {
+    for(let i= 0; i< ast.value.from.value.length; i++){
+        let val = ast.value.from.value[i];
         if (val.value.value.type == 'Identifier') {
-            if (!val.value.alias) {
-                console.log();
-            }
             if (val.value.alias && val.value.alias.value == excel.TableName) {
                 excel.TableName = val.value.value.value;
-            } else if (excel.FoundFlag == 1 && excel.TableName == '' && ast.value.from.value.length == 1) { // No table aslias and only select from 1 table
-                excel.TableName = val.value.value.value;
+                 excel.FoundFlag = 2;
+                 return;
             }
         } else if (val.value.value.type == 'SubQuery') {
+            if(val.value.alias && val.value.alias.value == excel.TableName){
+                excel.SubColAlias = excel.ColName;
+            }
             findColInfo(val.value.value, excel);
         }
-    });
+    }  
+
+    // Only select from 1 table and no table alias
+    if (excel.FoundFlag == 1 && excel.TableName == '' && ast.value.from.value.length == 1) {
+        excel.TableName = ast.value.from.value[0].value.value.value;
+        excel.FoundFlag = 2;
+    }
+}
+
+function compareColumn(aliasNm, excel) { 
+    if(excel.SubColAlias && aliasNm == excel.SubColAlias){
+        return 1;
+    }else if (aliasNm == excel.ColAlias || aliasNm == excel.ObjectId.toUpperCase()) {
+        if (aliasNm == excel.ObjectId.toUpperCase()) {
+            excel.ColAlias = excel.ObjectId;
+        }
+        return 1;
+    } else {
+        return 0;
+    }
+
 }
 
 
