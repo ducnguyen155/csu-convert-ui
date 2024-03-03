@@ -1,6 +1,7 @@
 var exelInfo = [];
 var listFunction1P = ['REPLACE', 'TO_CHAR', 'SUM', 'MAX', 'MIN', 'COUNT', 'NVL'];
 var listFunction3P = ['DECODE'];
+var listTempTable = [];
 
 function getMapping() {
     // Get the value from Input 1   
@@ -26,7 +27,7 @@ function parseQueryObj() {
     strQuery = strQuery.replace(/<[^>][^\n]*>/g, ''); // Remove tag xml
     strQuery = strQuery.replace(/#(\{[^}]+\})/g, "'$1'"); // Change params #{p} to '{p}'
     strQuery = strQuery.replace(/--.*/g, ''); // Remove comment --
-
+    strQuery = parseTempQuery(strQuery);
 
     try {
         if (strQuery.trim().length > 0) {
@@ -37,10 +38,21 @@ function parseQueryObj() {
             // Mapping for Excel Info
             exelInfo.forEach(excel => {
                 if (excel.SubObjectId) {
-                    excel = findColInfo(ast, excel);
+                    findColInfo(ast, excel);
                 }
             });
             //findColInfo(ast, exelInfo[22]);    
+
+            for(let i = listTempTable.length - 1; i >= 0; i--){
+                let tempTable = listTempTable[i];
+                exelInfo.forEach(excel => {
+                    if (excel.SubObjectId && excel.TableName == tempTable.key) {
+                        excel.FoundFlag = 0;
+                        findColInfo(tempTable.ast, excel);
+                    }
+                });
+            }
+
         }
     } catch (error) {
         console.log(error);
@@ -48,6 +60,50 @@ function parseQueryObj() {
         parseQueryString();
     }
     showExcelInfo();
+}
+
+function parseTempQuery(strQuery) {
+    listTempTable = [];
+    strQuery = strQuery.trim();
+    while (strQuery.indexOf('  ') > -1) {
+        strQuery = strQuery.replaceAll('  ', ' ');
+    }
+    let strTempQuery;
+    if (strQuery.startsWith('WITH ')) {
+        strQuery = strQuery.substring('WITH '.length, strQuery.length);
+        const regexPattern = /\s*([^\s(]+)\s*\n*AS\s*\(/g;
+
+        const match = strQuery.match(regexPattern);
+        let endIdx = 1;
+
+        match.forEach(m => {
+            let strIdx = strQuery.indexOf(m);
+            let stop = 1;
+            for (let i = strIdx + m.length; strQuery.length; i++) {
+                if (strQuery[i] == '(') {
+                    stop++;
+                } else if (strQuery[i] == ')') {
+                    stop--;
+                }
+
+                if (stop == 0) {
+                    endIdx = i;
+                    break;
+                }
+            }
+            strTempQuery = strQuery.substring(strIdx + m.length, endIdx);
+            strQuery = strQuery.substring(endIdx + 1, strQuery.length);
+            let sqlParser = window.sqlParser;
+            let ast = sqlParser.parse(strTempQuery);
+            let queryObj = {
+                key: m.replace(' AS (', '').trim(),
+                ast: ast
+            };
+            listTempTable.push(queryObj);
+
+        });
+    }
+    return strQuery;
 }
 
 
