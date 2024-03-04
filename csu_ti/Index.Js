@@ -37,16 +37,14 @@ function parseQueryObj() {
             //console.log(ast);
             // Mapping for Excel Info
             exelInfo.forEach(excel => {
-                if (excel.SubObjectId) {
-                    findColInfo(ast, excel);
-                }
+                findColInfo(ast, excel);
             });
             //findColInfo(ast, exelInfo[22]);    
 
-            for(let i = listTempTable.length - 1; i >= 0; i--){
+            for (let i = listTempTable.length - 1; i >= 0; i--) {
                 let tempTable = listTempTable[i];
                 exelInfo.forEach(excel => {
-                    if (excel.SubObjectId && excel.TableName == tempTable.key) {
+                    if (excel.TableName == tempTable.key) {
                         excel.FoundFlag = 0;
                         findColInfo(tempTable.ast, excel);
                     }
@@ -136,6 +134,24 @@ function copyFn(idx) {
     navigator.clipboard.writeText(copyText);
 }
 
+function getFunctionCallValue(val, excel) {
+    let value;
+    for (let pIdx = 2; pIdx < val.params.length; pIdx += 2) {
+        if (val.params[pIdx].type == 'Identifier' || val.params[pIdx].type == 'SubQuery') {
+            value = val.params[pIdx];
+            break;
+        }
+    }
+    if (!value) {
+        if (val.params[val.params.length - 1].type == 'Identifier') {
+            value = val.params[val.params.length - 1];
+        } else {
+            value = val.params[0];
+        }
+    }
+    return value;
+}
+
 function findColInfo(ast, excel, subQueryName) {
     if (excel.FoundFlag == 2) return;
 
@@ -158,45 +174,53 @@ function findColInfo(ast, excel, subQueryName) {
         // if (val.alias == 'NVL' && excel.ObjectId.toUpperCase() == "NVL")
         //     console.log(val);
 
-        if (val.type == 'Identifier') {
-            colObj = parseColumn(val.value);
-        } else if (val.type == 'FunctionCall') {
-            let value;
-            if (listFunction1P.indexOf(val.name) >= 0) {
-                value = val.params[0];
-            } else if (listFunction3P.indexOf(val.name) >= 0) {
-                value = val.params[2];
-            }
-
-            if (value) {
-                if (value.type == 'Identifier') {
-                    colObj = parseColumn(value.value);
-                } else if (value.type == 'SubQuery') {
-                    findColInfo(value, excel, val.alias);
-                } else if (value.type == 'FunctionCallParam') {
-                    colObj = parseColumn(value.value.value);
-                }
-            }
-
-        } else if (val.type == 'SubQuery') {
-            if (compareColumn(val.alias, excel)) {
-                findColInfo(val, excel, val.alias);
-            }
-
-        } else if (val.type == 'CaseWhen') {
-
-            if (compareColumn(val.alias, excel)) {
-                let identifier = val.whenThenList.value.find((e) => { return e.then.type == 'Identifier' });
-                let subQuery = val.whenThenList.value.find((e) => { return e.then.type == 'SubQuery' });
-
-                if (identifier) {
-                    colObj = parseColumn(identifier.then.value);
-                } else if (subQuery) {
-                    findColInfo(subQuery.then, excel, val.alias);
+        let tempVal = val;
+        while (tempVal) {
+            if (tempVal.type == 'Identifier') {
+                colObj = parseColumn(tempVal.value);
+            } else if (tempVal.type == 'FunctionCall') {
+                let value;
+                if (listFunction1P.indexOf(tempVal.name) >= 0) {
+                    value = tempVal.params[0];
+                } else if (listFunction3P.indexOf(tempVal.name) >= 0) {
+                    value = getFunctionCallValue(tempVal, excel);
                 }
 
+                if (value) {
+                    if (value.type == 'Identifier') {
+                        colObj = parseColumn(value.value);
+                    } else if (value.type == 'SubQuery') {
+                        findColInfo(value, excel, tempVal.alias);
+                    } else if (value.type == 'FunctionCallParam') {
+                        colObj = parseColumn(value.value.value);
+                    } else if (value.type == 'FunctionCall') {
+                        tempVal = value;
+                        continue;
+                    }
+                }
+
+            } else if (tempVal.type == 'SubQuery') {
+                if (compareColumn(tempVal.alias, excel)) {
+                    findColInfo(tempVal, excel, tempVal.alias);
+                }
+
+            } else if (tempVal.type == 'CaseWhen') {
+
+                if (compareColumn(tempVal.alias, excel)) {
+                    let identifier = tempVal.whenThenList.value.find((e) => { return e.then.type == 'Identifier' });
+                    let subQuery = tempVal.whenThenList.value.find((e) => { return e.then.type == 'SubQuery' });
+
+                    if (identifier) {
+                        colObj = parseColumn(identifier.then.value);
+                    } else if (subQuery) {
+                        findColInfo(subQuery.then, excel, tempVal.alias);
+                    }
+
+                }
             }
+            tempVal = '';
         }
+
 
         if (!colObj) continue;
 
