@@ -217,6 +217,9 @@ function findColInfo(ast, excel, subQueryName) {
                     }
 
                 }
+            } else if (tempVal.type == 'BitExpression' && tempVal.operator == '+' ){ 
+                tempVal = tempVal.left; 
+                continue; 
             }
             tempVal = '';
         }
