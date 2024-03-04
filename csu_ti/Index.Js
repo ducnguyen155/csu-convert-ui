@@ -132,7 +132,7 @@ function showExcelInfo() {
 
 function copyFn(idx) {
     let excel = exelInfo[idx];
-    var copyText = excel.TableName + '\t' + excel.ColAlias;
+    var copyText = excel.TableName + '\t' + excel.ColName;
     navigator.clipboard.writeText(copyText);
 }
 
