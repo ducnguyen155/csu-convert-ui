@@ -42,7 +42,7 @@ function parseQueryObj() {
             exelInfo.forEach(excel => {
                 findColInfo(ast, excel);
             });
-            //findColInfo(ast, exelInfo[16]);    
+            //findColInfo(ast, exelInfo[22]);    
 
             for (let i = listTempTable.length - 1; i >= 0; i--) {
                 let tempTable = listTempTable[i];
