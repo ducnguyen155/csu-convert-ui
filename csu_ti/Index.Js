@@ -29,11 +29,11 @@ function parseQueryObj() {
     strQuery = strQuery.replace(/<\/FOREACH[^>]*>/g, ')'); // </foreach> to )
     strQuery = strQuery.replace(/<[^>][^\n]*>/g, ''); // Remove tag xml
     strQuery = strQuery.replace(/#(\{[^}]+\})/g, "'$1'"); // Change params #{p} to '{p}'
-    strQuery = strQuery.replace(/--.*/g, ''); // Remove comment --
-    strQuery = parseTempQuery(strQuery);
+    strQuery = strQuery.replace(/--.*/g, ''); // Remove comment 
 
     try {
         if (strQuery.trim().length > 0) {
+            strQuery = parseTempQuery(strQuery);
             var sqlParser = window.sqlParser;
             var ast = sqlParser.parse(strQuery);
             //var sql = sqlParser.stringify(ast);
