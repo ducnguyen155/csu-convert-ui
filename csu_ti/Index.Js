@@ -1,5 +1,5 @@
 var exelInfo = [];
-var listFunction1P = ['REPLACE', 'TO_CHAR', 'SUM', 'MAX', 'MIN', 'COUNT', 'NVL'];
+var listFunction1P = ['REPLACE', 'TO_CHAR', 'SUM', 'MAX', 'MIN', 'COUNT', 'NVL', 'ROUND', 'TO_DATE', 'SUBSTR', 'COALESCE'];
 var listFunction3P = ['DECODE'];
 var listTempTable = [];
 
@@ -13,13 +13,16 @@ function getMapping() {
 function parseQueryObj() {
     const content = document.getElementById('content');
     let strQuery = content.value.toUpperCase();
-
+    while (strQuery.indexOf('  ') > -1) {
+        strQuery = strQuery.replaceAll('  ', ' ');
+    }
     strQuery = strQuery.replaceAll('||', '\+');
     strQuery = strQuery.replaceAll('(+)', '');
     strQuery = strQuery.replaceAll('NULLS LAST', '');
     strQuery = strQuery.replaceAll('&LT;', '<'); // Change &LT; to <
     strQuery = strQuery.replaceAll('&GT;', '>'); // Change &GT; to >
     strQuery = strQuery.replaceAll('<>', '!='); // Change &GT; to > 
+    strQuery = strQuery.replaceAll('FULL OUTER', ''); // Change &GT; to > 
 
     strQuery = strQuery.replace(/(?:\+|\-)\s*?(?:\d+\.\d+|\.\d+)/g, ""); //Remove + .99999 and .0
     strQuery = strQuery.replace(/<FOREACH[^>]*>/g, '('); // <foreach> to (
@@ -39,7 +42,7 @@ function parseQueryObj() {
             exelInfo.forEach(excel => {
                 findColInfo(ast, excel);
             });
-            //findColInfo(ast, exelInfo[22]);    
+            //findColInfo(ast, exelInfo[16]);    
 
             for (let i = listTempTable.length - 1; i >= 0; i--) {
                 let tempTable = listTempTable[i];
@@ -63,9 +66,7 @@ function parseQueryObj() {
 function parseTempQuery(strQuery) {
     listTempTable = [];
     strQuery = strQuery.trim();
-    while (strQuery.indexOf('  ') > -1) {
-        strQuery = strQuery.replaceAll('  ', ' ');
-    }
+    
     let strTempQuery;
     if (strQuery.startsWith('WITH ')) {
         strQuery = strQuery.substring('WITH '.length, strQuery.length);
@@ -217,9 +218,9 @@ function findColInfo(ast, excel, subQueryName) {
                     }
 
                 }
-            } else if (tempVal.type == 'BitExpression' && tempVal.operator == '+' ){ 
-                tempVal = tempVal.left; 
-                continue; 
+            } else if (tempVal.type == 'BitExpression' && tempVal.operator == '+') {
+                tempVal = tempVal.left;
+                continue;
             }
             tempVal = '';
         }
@@ -242,21 +243,50 @@ function findColInfo(ast, excel, subQueryName) {
 
 
     if (excel.FoundFlag == 2) return;
-    // Check from list
 
+    // Check from list
     for (let i = 0; i < query.from.value.length; i++) {
         let val = query.from.value[i];
-        if (val.value.value.type == 'Identifier') {
-            if (val.value.alias && val.value.alias.value == excel.TableName) {
-                excel.TableName = val.value.value.value;
-                excel.FoundFlag = 2;
-                return;
+        if (val.value.type == "InnerCrossJoinTable") {
+            if (excel.FoundFlag != 1 || (val.value.left.alias && val.value.left.alias.value == excel.TableName)) {
+                if (val.value.left.value.type == 'Identifier') {
+                    if (val.value.left.alias && val.value.left.alias.value == excel.TableName) {
+                        excel.TableName = val.value.left.value.value;
+                        excel.FoundFlag = 2;
+                        return;
+                    }
+                } else {
+                    findColInfo(val.value.left.value, excel);
+                }
             }
-        } else if (val.value.value.type == 'SubQuery') {
-            if (val.value.alias && val.value.alias.value == excel.TableName) {
-                excel.SubColAlias = excel.ColName;
+
+            if (excel.FoundFlag != 1 || (val.value.right.alias && val.value.right.alias.value == excel.TableName)) {
+                if (val.value.right.value.type == 'Identifier') {
+                    if (val.value.right.alias && val.value.right.alias.value == excel.TableName) {
+                        excel.TableName = val.value.right.value.value;
+                        excel.FoundFlag = 2;
+                        return;
+                    }
+                } else {
+                    findColInfo(val.value.right.value, excel);
+                }
             }
-            findColInfo(val.value.value, excel);
+        } else {
+            if(excel.FoundFlag != 1 || (val.value.alias && val.value.alias.value == excel.TableName)){
+                if (val.value.value.type == 'Identifier') {
+                    if (val.value.alias && val.value.alias.value == excel.TableName) {
+                        excel.TableName = val.value.value.value;
+                        excel.FoundFlag = 2;
+                        return;
+                    }
+                } else if (val.value.value.type == 'SubQuery') {
+                    if (val.value.alias && val.value.alias.value == excel.TableName) {
+                        excel.SubColAlias = excel.ColName;
+                    }
+                    findColInfo(val.value.value, excel);
+                }
+            }
+            
         }
     }
 
