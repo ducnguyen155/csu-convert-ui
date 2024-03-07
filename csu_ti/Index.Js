@@ -292,7 +292,13 @@ function findColInfo(ast, excel, subQueryName) {
 
     // Only select from 1 table and no table alias
     if (excel.FoundFlag == 1 && excel.TableName == '' && query.from.value.length == 1) {
-        excel.TableName = query.from.value[0].value.value.value;
+        if(query.from.value[0].value.value.type != 'SubQuery'){
+            excel.TableName = query.from.value[0].value.value.value;
+        }else{
+            excel.TableName = query.from.value[0].value.alias.value;
+            findColInfo(query.from.value[0].value.value.value, excel);
+        }
+        
         excel.FoundFlag = 2;
     }
 }
