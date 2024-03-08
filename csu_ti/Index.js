@@ -188,6 +188,8 @@ function findColInfo(ast, excel, alias, from) {
             excel.TableName = colObj.tbNm;
             excel.FoundFlag = 1;
             excel.From = from;
+        } else if (colObj.colNm == '*' && colObj.tbNm != '') {
+            excel.TableSelectAll = colObj.tbNm;
         }
     } else if (query.type == 'FunctionCall') {
         let value;
@@ -252,6 +254,7 @@ function findColInfo(ast, excel, alias, from) {
                 excel.SubColAlias = excel.ColName;
                 excel.FoundFlag = 0;
                 excel.TableName = '';
+                excel.TableSelectAll = '';
                 findColInfo(query.value, excel, alias);
             }
         } else if (!excel.FoundFlag) {
@@ -269,6 +272,10 @@ function findColInfo(ast, excel, alias, from) {
             let val = query.selectItems.value[i];
             let onlyOneTable = query.from.value.length == 1 ? query.from.value[0] : '';
             findColInfo(val, excel, (alias || val.alias), onlyOneTable);
+        }
+
+        if (excel.FoundFlag == 0 && excel.TableSelectAll != '') {
+            excel.TableName = excel.TableSelectAll;
         }
 
         // Check from list   
