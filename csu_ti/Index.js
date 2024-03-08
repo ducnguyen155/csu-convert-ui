@@ -66,7 +66,7 @@ function parseQueryObj() {
 function parseTempQuery(strQuery) {
     listTempTable = [];
     strQuery = strQuery.trim();
-    
+
     let strTempQuery;
     if (strQuery.startsWith('WITH ')) {
         strQuery = strQuery.substring('WITH '.length, strQuery.length);
@@ -143,9 +143,9 @@ function getFunctionCallValue(val, excel) {
             break;
         }
     }
-    if(!value){
+    if (!value) {
         for (let pIdx = 2; pIdx < val.params.length; pIdx += 2) {
-            if (val.params[pIdx].type != 'String' && val.params[pIdx].type != 'Number') {
+            if (val.params[pIdx].type != 'String' && val.params[pIdx].type != 'Number' && val.params[pIdx].type != 'Null') {
                 value = val.params[pIdx];
                 break;
             }
@@ -251,13 +251,14 @@ function findColInfo(ast, excel, alias, from) {
             } else {
                 excel.SubColAlias = excel.ColName;
                 excel.FoundFlag = 0;
+                excel.TableName = '';
                 findColInfo(query.value, excel, alias);
             }
         } else if (!excel.FoundFlag) {
             if (query.value.type == 'Identifier') {
-                
-            }else{
-                findColInfo(query.value, excel, alias); 
+
+            } else {
+                findColInfo(query.value, excel, alias);
             }
         }
     } else if (query.type == 'Select') {
@@ -285,6 +286,10 @@ function findColInfo(ast, excel, alias, from) {
 
             findColInfo(val.value, excel, alias);
         }
+    } else if (query.type == 'SimpleExprParentheses') {
+        findColInfo(query.value, excel, alias);
+    } else if (query.type == 'ExpressionList') {
+        findColInfo(query.value[0], excel, alias);
     }
 }
 
@@ -292,7 +297,7 @@ function compareColumn(aliasNm, excel) {
     if (excel.SubColAlias && aliasNm == excel.SubColAlias) {
         return 1;
     } else if (aliasNm == excel.ColAlias || aliasNm == excel.ObjectId.toUpperCase()) {
-        if (aliasNm == excel.ObjectId.toUpperCase()) {
+        if (aliasNm == excel.ObjectId.toUpperCase() && aliasNm != excel.ColAlias) {
             excel.ColAlias = excel.ObjectId;
         }
         return 1;
