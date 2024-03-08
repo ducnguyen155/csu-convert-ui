@@ -153,153 +153,130 @@ function getFunctionCallValue(val, excel) {
     return value;
 }
 
-function findColInfo(ast, excel, subQueryName) {
+function findColInfo(ast, excel, alias, from) {
     if (excel.FoundFlag == 2) return;
 
-    let query = ast.value || ast;
+    let query = ast;
 
     if (!query) return;
 
-    if (query.type == "Union") {
-        findColInfo(query.left, excel);
-        findColInfo(query.right, excel);
+    let colObj;
+
+    if (query.nodeType == 'Main') {
+        findColInfo(ast.value, excel);
+    } else if (query.type == 'Identifier') {
+        colObj = parseColumn(query.value);
+
+        if (!colObj) return;
+
+        if (compareColumn(alias, excel)) { //Select Sub query
+            excel.ColName = colObj.colNm;
+            excel.TableName = colObj.tbNm;
+            excel.SubColAlias = colObj.colNm;
+            excel.FoundFlag = 1;
+            excel.From = from;
+        } else if (compareColumn((query.alias || colObj.colNm), excel) || colObj.colNm == excel.ColAlias) {
+            excel.ColName = colObj.colNm;
+            excel.TableName = colObj.tbNm;
+            excel.FoundFlag = 1;
+            excel.From = from;
+        }
+    } else if (query.type == 'FunctionCall') {
+        let value;
+        if (listFunction1P.indexOf(query.name) >= 0) {
+            value = query.params[0];
+        } else if (listFunction3P.indexOf(query.name) >= 0) {
+            value = getFunctionCallValue(query, excel);
+        }
+        findColInfo(value, excel, (alias || query.alias), from);
+    } else if (query.type == 'FunctionCallParam') {
+        query = query.value;
+        findColInfo(query, excel, alias);
+
+    } else if (query.type == "ComparisonBooleanPrimary") {
+        if (compareColumn((alias || query.alias), excel)) {
+            findColInfo(query.left, excel, (alias || query.alias));
+        }
+    } else if (query.type == "Union") {
+        findColInfo(query.left, excel, alias);
+        findColInfo(query.right, excel, alias);
         return;
-    }
-
-    //Check select list
-    for (let i = 0; i < query.selectItems.value.length; i++) {
-        if (excel.FoundFlag == 2) return;
-        let val = query.selectItems.value[i];
-        //console.log(val);
-        let colObj;
-        // if (val.alias == 'NVL' && excel.ObjectId.toUpperCase() == "NVL")
-        //     console.log(val);
-
-        let tempVal = val;
-        while (tempVal) {
-            if (tempVal.type == 'Identifier') {
-                colObj = parseColumn(tempVal.value);
-            } else if (tempVal.type == 'FunctionCall') {
-                let value;
-                if (listFunction1P.indexOf(tempVal.name) >= 0) {
-                    value = tempVal.params[0];
-                } else if (listFunction3P.indexOf(tempVal.name) >= 0) {
-                    value = getFunctionCallValue(tempVal, excel);
-                }
-
-                if (value) {
-                    if (value.type == 'Identifier') {
-                        colObj = parseColumn(value.value);
-                    } else if (value.type == 'SubQuery') {
-                        findColInfo(value, excel, tempVal.alias);
-                    } else if (value.type == 'FunctionCallParam') {
-                        colObj = parseColumn(value.value.value);
-                    } else if (value.type == 'FunctionCall') {
-                        tempVal = value;
-                        continue;
-                    }
-                }
-
-            } else if (tempVal.type == 'SubQuery') {
-                if (compareColumn(tempVal.alias, excel)) {
-                    findColInfo(tempVal, excel, tempVal.alias);
-                }
-
-            } else if (tempVal.type == 'CaseWhen') {
-
-                if (compareColumn(tempVal.alias, excel)) {
-                    let identifier = tempVal.whenThenList.value.find((e) => { return e.then.type == 'Identifier' });
-                    let subQuery = tempVal.whenThenList.value.find((e) => { return e.then.type == 'SubQuery' });
-
-                    if (identifier) {
-                        colObj = parseColumn(identifier.then.value);
-                    } else if (subQuery) {
-                        findColInfo(subQuery.then, excel, tempVal.alias);
-                    }
-
-                }
-            } else if (tempVal.type == 'BitExpression' && tempVal.operator == '+') {
-                tempVal = tempVal.left;
-                continue;
-            }
-            tempVal = '';
-        }
-
-
-        if (!colObj) continue;
-
-        if (compareColumn(subQueryName, excel)) { //Select Sub query
-            excel.ColName = colObj.colNm;
-            excel.TableName = colObj.tbNm;
-            excel.FoundFlag = 1;
-            break;
-        } else if (compareColumn(val.alias, excel) || colObj.colNm == excel.ColAlias) {
-            excel.ColName = colObj.colNm;
-            excel.TableName = colObj.tbNm;
-            excel.FoundFlag = 1;
-            break;
-        }
-    }
-
-
-    if (excel.FoundFlag == 2) return;
-
-    // Check from list
-    for (let i = 0; i < query.from.value.length; i++) {
-        let val = query.from.value[i];
-        if (val.value.type == "InnerCrossJoinTable") {
-            if (excel.FoundFlag != 1 || (val.value.left.alias && val.value.left.alias.value == excel.TableName)) {
-                if (val.value.left.value.type == 'Identifier') {
-                    if (val.value.left.alias && val.value.left.alias.value == excel.TableName) {
-                        excel.TableName = val.value.left.value.value;
-                        excel.FoundFlag = 2;
-                        return;
-                    }
-                } else {
-                    findColInfo(val.value.left.value, excel);
-                }
-            }
-
-            if (excel.FoundFlag != 1 || (val.value.right.alias && val.value.right.alias.value == excel.TableName)) {
-                if (val.value.right.value.type == 'Identifier') {
-                    if (val.value.right.alias && val.value.right.alias.value == excel.TableName) {
-                        excel.TableName = val.value.right.value.value;
-                        excel.FoundFlag = 2;
-                        return;
-                    }
-                } else {
-                    findColInfo(val.value.right.value, excel);
-                }
+    } else if (query.type == 'SubQuery') {
+        if (excel.FoundFlag != 2 && query.alias == excel.ColName) {
+            findColInfo(query.value, excel, excel.ColName);
+            // Only select from 1 table and no table alias
+            if (excel.FoundFlag == 1 && excel.TableName == '' && query.value.from.value.length == 1) {
+                excel.TableName = query.value.from.value[0].value.value.value;
+                excel.FoundFlag = 2;
             }
         } else {
-            if(excel.FoundFlag != 1 || (val.value.alias && val.value.alias.value == excel.TableName)){
-                if (val.value.value.type == 'Identifier') {
-                    if (val.value.alias && val.value.alias.value == excel.TableName) {
-                        excel.TableName = val.value.value.value;
-                        excel.FoundFlag = 2;
-                        return;
-                    }
-                } else if (val.value.value.type == 'SubQuery') {
-                    if (val.value.alias && val.value.alias.value == excel.TableName) {
-                        excel.SubColAlias = excel.ColName;
-                    }
-                    findColInfo(val.value.value, excel);
-                }
-            }
-            
+            findColInfo(query.value, excel, alias);
         }
-    }
+    } else if (query.type == 'CaseWhen') {
+        if (compareColumn((alias || query.alias), excel)) {
+            let identifier = query.whenThenList.value.find((e) => { return (e.then.type != 'String' && e.then.type != 'Number') });
 
-    // Only select from 1 table and no table alias
-    if (excel.FoundFlag == 1 && excel.TableName == '' && query.from.value.length == 1) {
-        if(query.from.value[0].value.value.type != 'SubQuery'){
-            excel.TableName = query.from.value[0].value.value.value;
-        }else{
-            excel.TableName = query.from.value[0].value.alias.value;
-            findColInfo(query.from.value[0].value.value.value, excel);
+            if (identifier) {
+                findColInfo(identifier.then, excel, alias || query.alias);
+            } else {
+                findColInfo(query.whenThenList.value[0].when, excel, alias || query.alias);
+            }
         }
-        
-        excel.FoundFlag = 2;
+    } else if (query.type == 'BitExpression') {
+        if (compareColumn(alias, excel)) {
+            if (query.left.type == 'Identifier') {
+                colObj = parseColumn(query.left.value);
+                excel.SubColAlias = colObj.colNm;
+                findColInfo(query.left, excel, alias, from);
+            } else {
+                findColInfo(query.left, excel, alias, from);
+            }
+        }
+    } else if (query.type == 'InnerCrossJoinTable') {
+        findColInfo(query.left.value, excel);
+        findColInfo(query.right.value, excel);
+    } else if (query.type == 'TableFactor') {
+        if (excel.FoundFlag != 2 && query.alias && query.alias.value == excel.TableName) {
+            if (query.value.type == 'Identifier') {
+                excel.TableName = query.value.value;
+                excel.FoundFlag = 2;
+            } else {
+                excel.SubColAlias = excel.ColName;
+                excel.FoundFlag = 0;
+                findColInfo(query.value, excel, alias);
+            }
+        } else if (!excel.FoundFlag) {
+            if (query.value.type == 'Identifier') {
+                
+            }else{
+                findColInfo(query.value, excel, alias); 
+            }
+        }
+    } else if (query.type == 'Select') {
+        //Check select list
+        for (let i = 0; i < query.selectItems.value.length; i++) {
+
+            if (excel.FoundFlag == 1) break;
+            let val = query.selectItems.value[i];
+            let onlyOneTable = query.from.value.length == 1 ? query.from.value[0] : '';
+            findColInfo(val, excel, (alias || val.alias), onlyOneTable);
+        }
+
+        // Check from list   
+        if (excel.From && excel.FoundFlag == 1 && excel.TableName == '' && excel.From.value.alias) {
+            excel.TableName = excel.From.value.alias.value;
+        } else if (excel.From && excel.FoundFlag == 1 && excel.TableName == '' && excel.From.value.value) {
+            excel.TableName = excel.From.value.value.value;
+            excel.FoundFlag = 2;
+        }
+
+        for (let i = 0; i < query.from.value.length; i++) {
+            if (excel.FoundFlag == 2) break;
+
+            let val = query.from.value[i];
+
+            findColInfo(val.value, excel, alias);
+        }
     }
 }
 
