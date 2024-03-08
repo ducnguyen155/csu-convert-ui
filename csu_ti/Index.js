@@ -138,9 +138,17 @@ function copyFn(idx) {
 function getFunctionCallValue(val, excel) {
     let value;
     for (let pIdx = 2; pIdx < val.params.length; pIdx += 2) {
-        if (val.params[pIdx].type == 'Identifier' || val.params[pIdx].type == 'SubQuery') {
+        if (val.params[pIdx].type == 'Identifier') {
             value = val.params[pIdx];
             break;
+        }
+    }
+    if(!value){
+        for (let pIdx = 2; pIdx < val.params.length; pIdx += 2) {
+            if (val.params[pIdx].type != 'String' && val.params[pIdx].type != 'Number') {
+                value = val.params[pIdx];
+                break;
+            }
         }
     }
     if (!value) {
