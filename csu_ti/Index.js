@@ -360,9 +360,9 @@ async function parseExcel(file, fParseQuery) {
             for (var R = 4; R <= variable.e.r; R++) {
 
                 let excel = {};
-                excel.ObjectId = ws[ec(R, colObjectId)].v;
-                excel.SubObjectId = ws[ec(R, colSubObjectId)].v;
-                excel.DisplayName = ws[ec(R, colDisplayName)].v;
+                excel.ObjectId = ws[ec(R, colObjectId)] ? ws[ec(R, colObjectId)].v : '';
+                excel.SubObjectId = ws[ec(R, colSubObjectId)] ? ws[ec(R, colSubObjectId)].v : '';
+                excel.DisplayName = ws[ec(R, colDisplayName)] ? ws[ec(R, colDisplayName)].v : '';
                 excel.TableName = ws[ec(R, colTableName)] ? ws[ec(R, colTableName)].v : '';
                 excel.ColName = ws[ec(R, colColName)] ? ws[ec(R, colColName)].v : '';
                 if (!excel.ColName) {
